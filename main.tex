@@ -29,8 +29,13 @@
 
 \usepackage{parskip}
 
-% bibliography
-\usepackage[backend=biber]{biblatex}
+% bibliography, play around with these maybe
+\usepackage[
+    backend=biber,
+    style=numeric,
+    sortcites=true,
+    sorting=none,
+]{biblatex}
 \addbibresource{citations.bib}
 
 % glossaries
@@ -122,7 +127,7 @@ As an example, consider a simple model consisting of a linear relationship betwe
 
 Parameters that directly multiply values, $w_i$, are called \textbf{\glspl{weight}}, and parameters that offset values, $b$, are called \textbf{\glspl{bias}}. The inputs from the data set, $\mathbf{x}$, are called \textbf{\glspl{feature}} This can be generalized to vector outputs with matrices, and in more complex models, the notation may be extended to tensors.
 \begin{equation}
-    f = \mathbf{b} + W\mathbf{x}
+    f = \mathbf{b} + \mathbf{W}\mathbf{x}
 \end{equation}
 
 The parameters of a model are usually collectively referred to as a vector $\boldsymbol{\theta}$, with components of the individual weights and biases of the model. For complex models, $\boldsymbol{\theta}$ may be millions, billions, or even trillions of parameters long, populated by numerous parameter tensors.
@@ -161,7 +166,7 @@ The process of improving the model by finding values for $\boldsymbol{\theta}$ t
 
 Since brute-forcing the error surface of $L$ is infeasible with a large number of parameters, the standard algorithmic approach to find minima of $L$ is \textbf{gradient descent}. In gradient descent, $L$ is iteratively lowered by stepping $\boldsymbol{\theta}$ against the gradient of $L$.
 \begin{equation}
-    \boldsymbol{\theta}^{(n+1)} = \boldsymbol{\theta}^{(n)}-\eta\nabla L(\boldsymbol{\theta}^{(n)})
+    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)}-\eta\nabla L(\boldsymbol{\theta}^{(t)})
 \end{equation}
 The \textbf{learning rate}, $\eta$, determines the scaling for the size of each step.
 
@@ -187,15 +192,15 @@ When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the update
     \label{fig:enter-label}
 \end{figure}
 
-Each node takes a biased weighted sum of the values of the previous layer, applies an activation function $f_a$, and outputs the value to the next layer.
+Each node takes a biased weighted sum of the values of the previous layer, applies an activation function $\phi$, and outputs the value to the next layer.
 \begin{equation}
-    a^{(l)}_j = f_a\left(b_j^{(l)} + \sum_i w_{ij}^{(l-1)} a_i^{(l-1)}\right)
+    a^{(l)}_j = \phi\left(b_j^{(l)} + \sum_i w_{ij}^{(l-1)} a_i^{(l-1)}\right)
 \end{equation}
-Or, using matrix notation, where we define $f_a$ to act component-wise on a vector,
+Or, using matrix notation, where we define $\phi$ to act component-wise on a vector,
 \begin{equation}
-    \mathbf{a}^{(l)} = f_a\left(\mathbf{b}^{(l)} + \mathbf{W}^{(l-1)}\mathbf{a}^{(l-1)}\right).
+    \mathbf{a}^{(l)} = \phi\left(\mathbf{b}^{(l)} + \mathbf{W}^{(l-1)}\mathbf{a}^{(l-1)}\right).
 \end{equation}
-In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l$ to be inputted into layer $l+1$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}$, which is used to denote the iteration of the gradient descent algorithm.
+In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l$ to be inputted into layer $l+1$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
 
 \subsection{Activation Functions and the Universal Approximation Theorems}
 
@@ -225,11 +230,11 @@ Equation \ref{eq:approximation} is equivalent to a neural network with one hidde
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{figs/simple.png}
-    \caption{}
+    \caption{Reprinted from \cite{lee_introduction_2021}.}
     \label{fig:enter-label}
 \end{figure}
 
-This result can be generalized to any non-polynomial function, such as ReLUs, in the \textbf{universal approximation theorems}, implying that NNs that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. It is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal.
+This result can be generalized to any non-polynomial activation function, including ReLUs, in the \textbf{universal approximation theorems}, implying that NNs that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. It is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal.
 
 \subsection{Layers}
 
@@ -246,7 +251,6 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Cross-validation}
 
-
 \subsection{Regularization}
 
 \subsection{Dropout}
@@ -261,7 +265,13 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Adaptive Learning Rate}
 
-\subsection{Adaptive Moment Estimation (Adam)}
+\subsubsection{Adagrad}
+
+\subsubsection{RMSprop}
+
+\subsubsection{Adam}
+
+\subsection{Learning Rate Scheduling}
 
 
 \section{Reinforcement Learning}
@@ -269,6 +279,8 @@ The addition of layers to a model increases its complexity, the number of which 
 \chapter{Robotic Systems}
 
 \section{ANYmal by ANYbotics}
+
+\cite{hutter_legged_2022}
 
 \chapter{Literature}
 
