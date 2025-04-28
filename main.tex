@@ -90,10 +90,13 @@
 
 \begin{document}
 
-\title{robot doggo can learn how to walk???}
+\title{robot doggo can learn how to walk??? \\
+    \large{An introductory survey of reinforcement learning and its applications to robotic systems.}}
 \author{Sky Hong}
 \date{\today}
 \maketitle
+
+% definitely consider making a better title along with formatting stuff
 
 \begin{abstract}
     something idk, figure out final formatting later
@@ -106,7 +109,7 @@
 
 \chapter{Introduction}
 
-\chapter{Background}
+\chapter{Machine Learning}
 \section{Introduction to Machine Learning}
 The field of machine learning is fundamentally about finding functions that model data. For example, a speech recognition model takes audio as an input and outputs a text, and AlphaZero takes a chessboard state as an input and outputs a move. These functions may be vastly complex, with far too many parameters and relations for any human to reasonably articulate and program, even if the task comes naturally to our evolved biology. Machine learning offers methods for computers to achieve these tasks, without the need for a human to give explicit instructions on \textit{how} it should be accomplished.
 
@@ -263,6 +266,8 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Momentum}
 
+\subsubsection{Nesterov Momentum}
+
 \subsection{Adaptive Learning Rate}
 
 \subsubsection{Adagrad}
@@ -273,16 +278,33 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Learning Rate Scheduling}
 
+\subsection{Feature Scaling and Batch Normalization}
+
+\section{Classification}
+
+\subsection{Softmax}
+
+\subsection{Cross Entropy Loss}
 
 \section{Reinforcement Learning}
 
-\chapter{Robotic Systems}
+\subsection{Policy Gradient}
 
-\section{ANYmal by ANYbotics}
+\subsection{Actor-Critic}
+
+\subsection{Reward Shaping}
+
+\subsection{Inverse Reinforcement Learning}
+
+\chapter{Robotic Systems and Control}
+
+\section{Hutter, Lee, Hwangbo et al.\ and the ANYmal by ANYbotics}
 
 \cite{hutter_legged_2022}
 
-\chapter{Literature}
+\section{Luo et al.\ and Exoskeletons}
+
+\section{more examples will go here}
 
 \printglossaries
 
