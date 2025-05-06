@@ -109,9 +109,68 @@
 %\addcontentsline{toc}{chapter}{Glossary}
 
 \chapter{Introduction}
-This document is a review article for my spring term of the Science Research Program (SRP) at Choate Rosemary Hall. The goal of this article is to provide a overview of machine learning (ML), specifically the framework of reinforcement learning (RL), and its applications to various robotic systems. The first section is intended to provide an understanding of artifical neural networks and reinforcement learning assuming no prior knowledge of the subject except for a familiarity with multivariable calculus and linear algbera. Then, the second section will discuss various groups and their work in applying RL to control robotic systems.
+\section{Preface}
+This document is a review article for my spring term of the Science Research Program (SRP) at Choate Rosemary Hall. The goal of this article is to provide a overview of machine learning (ML), specifically the framework of reinforcement learning (RL), and its applications to various robotic systems. The first section is intended to provide an understanding of artifical neural networks and reinforcement learning assuming no prior knowledge of the subject except for a grasp of multivariable calculus and linear algbera. Then, the second section will discuss various groups and their work in applying RL to control robotic systems.
 
-\chapter{Machine Learning}
+\section{Mathematical Notation}\label{notation}
+This section will introduce the standard for the mathematical notation used in this document, as well as defining any concepts that are not ubiquitous and may be unfamiliar to the reader. As new topics are introduced, new notation may be defined in their respective sections, as this section is for purely mathematical notation.
+
+These standards which may not necessarily reflect the notation used in the original sources, or in the literature in general, rather they are intended for consistency. Even so, there are not many significant deviations that the author uses from the literature.
+
+\subsection{Linear Algebra}
+\subsubsection{Scalars, Vectors, Matrices, and Tensors}
+Vectors are denoted with boldface lowercase symbols, such as $\mathbf{v}$. Matrices and other higher-order tensors are denoted with boldface uppercase symbols, such as $\mathbf{W}$.
+
+Simple scalar values are denoted with regular lowercase symbols, such as $b$, and are never bolded. The scalar components of a non-scalar tensor are denoted with a subscript affixed to the corresponding unbolded lowercase symbol for the tensor, such as $w_{ij}$ for the $i,j$ component of the matrix $\mathbf{W}$.
+
+\subsubsection{Operations} % revisit this
+The standard notation for basic vector and matrix operations are used throughout this document.
+
+The Hadamard product, or element-wise product, $\odot$ is defined as
+\begin{equation}
+    ({\mathbf{A} \odot \mathbf{B}})_{ij} = A_{ij}B_{ij}.
+\end{equation}
+The Kronecker product, often called the ``tensor product'' in machine learning, though not exactly the same as the formal linear algebra definition, is denoted with $\otimes$ and is defined as
+\begin{equation}
+    \mathbf{A} \otimes \mathbf{B} = \begin{bmatrix}
+        A_{11}\mathbf{B} & A_{12}\mathbf{B} & \cdots & A_{1n}\mathbf{B} \\
+        A_{21}\mathbf{B} & A_{22}\mathbf{B} & \cdots & A_{2n}\mathbf{B} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        A_{m1}\mathbf{B} & A_{m2}\mathbf{B} & \cdots & A_{mn}\mathbf{B}
+    \end{bmatrix}.
+\end{equation}
+
+\subsection{Calculus}
+The gradient of a multivariable scalar function $F$ is denoted with $\nabla F$, and is defined as
+\begin{equation}
+    \nabla F = \begin{bmatrix}
+        \frac{\partial F}{\partial x_1} \\
+        \frac{\partial F}{\partial x_2} \\
+        \vdots
+    \end{bmatrix}.
+\end{equation}
+The Hessian matrix of a multivariable scalar function $F$ is denoted with $\mathbf{H}(F)$, and is defined as
+\begin{equation}
+    \mathbf{H}(F) = \begin{bmatrix}
+        \frac{\partial^2 F}{\partial x_1^2} & \frac{\partial^2 F}{\partial x_1 \partial x_2} & \cdots \\
+        \frac{\partial^2 F}{\partial x_2 \partial x_1} & \frac{\partial^2 F}{\partial x_2^2} & \cdots \\
+        \vdots & \vdots & \ddots
+    \end{bmatrix}.
+\end{equation}
+
+\subsection{Miscellaneous}
+The argument or set of arguments $a$ at the maximum or minimum of a function $f$ may be defined as
+\begin{equation}
+    \arg\max_a f(a),
+\end{equation}
+or
+\begin{equation}
+    \arg\min_a f(a),
+\end{equation}
+respectively.
+
+
+\chapter{Neural Networks}
 \section{Introduction to Machine Learning}
 The field of machine learning is fundamentally about finding functions that model data. For example, a speech recognition model takes audio as an input and outputs a text, and AlphaZero takes a chessboard state as an input and outputs a move. These functions may be vastly complex, with far too many parameters and relations for any human to reasonably articulate and program, even if the task comes naturally to our evolved biology. Machine learning offers methods for computers to achieve these tasks, without the need for a human to give explicit instructions on \textit{how} it should be accomplished.
 
@@ -209,7 +268,7 @@ Or, using matrix notation, where we define $\phi$ to act component-wise on a vec
 \end{equation}
 $\phi$ is usually the same for every layer of a netowrk, but it may not always be, in which case it may be specified with a subscript, $\phi^{(l)}$. The notable case where this arises is the softmax function for the final layer of a classification network. See Section~\ref{sec:classification} for more details.
 
-In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l-1$ to be inputted into the activation function of layer $l$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. In general, supercripts will denote a layer in the network, and subscripts will denote a specific component of a vector or matrix, such as a specific node or weight of a layer. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
+In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l-1$ to be inputted into the activation function of layer $l$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. In general, supercripts will denote a layer in the network, and subscripts will denote a specific component of a vector or matrix, such as a specific node or weight of a layer, as described in Section~\ref{notation}. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
 
 \subsection{Activation Functions and the Universal Approximation Theorems}
 
@@ -354,6 +413,9 @@ Rather than considering the entire training dataset all at once, we can iterate 
 
 The size of a batch and the number of epochs to train for are both hyperparameters.
 
+% ehh look into this more
+Batching also has the advantage of being able to parallelize the computation of the gradient, as each batch can be computed independently. Thus, \textbf{graphics processing units} (GPUs) and \textbf{tensor processing units} (TPUs) are highly effective for training neural networks, with training times reduced by orders of magnitude with hardware acceleration.
+
 \subsubsection{Batch size}
 
 
@@ -396,15 +458,41 @@ Russian mathematician Yurii Nesterov improved on the standard momentum method by
 Since error surfaces are usually complex and non-uniform, a constant learning rate is not always ideal. For example, a small learning rate may be appropiate for a steep slope, but it may also be too small to make any progress on a relatively flat geometry. Conversely, a large learning rate may be appropriate for for flat geometries but may not converge to a minima on steep slopes. Error surfaces may also be anisotropic, where certain parameters are much more senesitive to changes than others.
 
 Adaptive learning rates are a class of methods that introduce a variable $\sigma$ to be both time-dependent and parameter-dependent to allow for more flexibility in the learning process.
+\begin{equation}
+    \theta_{i}^{(t+1)} = \theta_{i}^{(t)} - \frac{\eta}{\sigma_i^t}\frac{\partial L}{\partial \theta_i^{(t)}}
+\end{equation}
 
 \subsubsection{Adagrad}
+\textbf{Adapative Gradient Descent}, more commonly known as \textbf{Adagrad}, is a basic adapative learning rate method that sets $\sigma_i^{(t)}$ to be the sum of the squares of each iteration of the gradient with respect to the parameter $i$.
+\begin{equation}
+    \sigma_i^t = \sqrt{\sum_{j=0}^t {\left(\frac{\partial L}{\partial \theta_i^{(j)}}\right)}^2 + \epsilon}
+\end{equation}
+A very small $\epsilon \lll 1$ is included to prevent singularity problems when $\sigma_i^{(t)}$ is $0$.
 
 \subsubsection{RMSprop}
-
+$\sigma$ can only increase in Adagrad, which can cause problems if if the effective learning rate becomes too small. \textbf{RMSprop} is a modification of Adagrad that weights previous iterations of the gradient and the most recent gradient with a hyperparameter decay factor $\alpha$.
+\begin{equation}
+    \sigma_i^t = \sqrt{\alpha {(\sigma_i^{(t-1)})}^2 + (1-\alpha)\left(\frac{\partial L}{\partial \theta_i^{(t)}}\right)^2 + \epsilon}
+\end{equation}
+This allows RMSprop to be more flexible and responsive than Adagrad, slowing down when the gradient is large and speeding up when the gradient is small.
 \subsubsection{Adam}
+\textbf{Adaptive Moment Estimation}, or \textbf{Adam}, is a more advanced adaptive learning rate method that combines the ideas of momentum and RMSprop. It uses two decay factors, $\beta_1$ and $\beta_2$, to weight the previous iterations of the gradient and the squared gradient, respectively.
+
+read paper come back later
+
+This algorithm is a standard in the field, and it is the default optimizer in many machine learning libraries, such as PyTorch.
 
 \subsection{Learning Rate Scheduling}
 
+The learning rate $\eta$ is a hyperparameter that is usually set to a constant value. However, it may be beneficial to instead define $\eta$ to vary with respect to iteration, $\eta^{(t)}$. This is called \textbf{learning rate scheduling}.
+\begin{equation}
+    \theta_{i}^{(t+1)} = \theta_{i}^{(t)} - \frac{\eta^{(t)}}{\sigma_i^t}\frac{\partial L}{\partial \theta_i^{(t)}}
+\end{equation}
+Typically, $\eta^{(t)}$ is set to decay as the number of iterations increases to prevent sudden explosions in step size after many iterations of small $\sigma$.
+
+\subsubsection{Warmup}
+
+lmao let the model warm up???
 
 \subsection{Feature Scaling and Batch Normalization}
 
@@ -427,17 +515,68 @@ Formally defined, it is a function $\sigma\colon \mathbb{R}^K \to (0, 1)^K$, whe
 \end{equation}
 In other words, every component is exponentiated and then normalized by dividing with the sum of all exponentiated components.
 
+insert figure here
+
+The inputs to the softmax function are also called \textbf{logits}.
+
+When implemented in code, the final normalized vector after being passed through the softmax function is then called by \textbf{argmax} to identify the index of the class with the highest probability, and thus the predicted class.
+
 \subsection{Cross Entropy Loss}
 
-\section{Reinforcement Learning (RL)}
+Recall the formula for the ubiquitous MSE loss for vector outputs.
+\begin{equation}
+L = \frac{1}{N}\sum \left(\sum_i (\hat{y}_i-y'_i)^2\right)
+\end{equation}
+For classification purpose, another loss called \textbf{cross entropy} is more commonly used instead, often paired with softmax. Minimizing cross entropy is equivalent to maximizing likelihood, for various information theory reasons. \url{https://www.youtube.com/watch?v=fZAZUYEeIMg}
+\begin{equation}
+L = \frac{1}{N}\sum \left(-\sum_i \hat{y}_i \ln y'_i\right)
+\end{equation}
+Note that $\ln y'_i$ is always negative because $y'$ is the output of the softmax, and thus the term inside the parentheses is always positive.
 
-\subsection{Policy Gradient}
+Cross entropy allso usually gives smoother loss surfaces compared to MSE for classification problems.
 
-\subsection{Actor-Critic Methods}
+\chapter{Reinforcement Learning}
+So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human,which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
 
-\subsection{Reward Shaping}
+The framework of \textbf{reinforcement learning (RL)} is a class of ML techniques that do not require labeled data. Instead, RL models learn by interacting with an environment, and receiving feedback in the form of rewards or penalties. The goal of an RL model is to learn a \textbf{policy} that maximizes the expected reward over time.
 
-\subsection{Inverse Reinforcement Learning (IRL)}
+insert figure here
+
+In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a reward.
+
+\section{Markov Decision Processes (MDPs)}
+
+A \textbf{Markov descision process} (MDP) is a mathematical framework that can be used to model decisionmaking in a RL agent. Formally, an MDP is defined by a tuple $(\mathcal{S}, \mathcal{A}, P, R)$, where:
+\begin{itemize}
+    \item $\mathcal{S}$, the \textbf{state space}, is the set of all possible states of the agent, which corresponds to the observations that the agent receives from the environment.
+    \item $\mathcal{A}$, the \textbf{action space}, is the set of all possible actions that the agent can take.
+    \item $P$, the \textbf{transition function}, outputs the probability of transitioning from one state to another via a specific action.
+    \item $R$, the \textbf{reward function}, outputs the reward received by the agent after transitioning from one state to another given a specific action.
+\end{itemize}
+
+insert figure here
+
+\subsection{Policies}
+
+The \textbf{policy} $\pi(s, a): \mathcal{S} \times \mathcal{A} \to [0,1]$ is a function that outputs the probability of taking action $a$ in state $s$.
+
+Equivalently, the policy can be thought of as a function that maps from the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. More precisely, the policy maps not to just a single action, but a probability distribution over the action space.
+
+The goal of the agent is to learn a policy that maximizes the expected reward over time.
+
+Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi$ is a function that maps from the state space to a probability distribution over the action space, it can be approximated by a classification neural network.
+
+\subsection{Value Functions}
+
+
+
+\section{Policy Gradient}
+
+\section{Actor-Critic Methods}
+
+\section{Reward Shaping}
+
+\section{Inverse Reinforcement Learning (IRL)}
 
 \chapter{Robotic Systems and Control}
 
