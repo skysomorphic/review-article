@@ -81,7 +81,7 @@
 \newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
 
 % modify this to change spacing
-\setstretch{1}
+\setstretch{}
 
 % figure out subfles or smth later
 \usepackage{subfiles}
@@ -92,7 +92,8 @@
 
 \title{robot doggo can learn how to walk??? \\
     \large{An introductory survey of reinforcement learning and its applications to robotic systems.}}
-\author{Sky Hong}
+\author{Sky Hong \\
+    \textit{Choate Rosemary Hall}}
 \date{\today}
 \maketitle
 
@@ -108,12 +109,13 @@
 %\addcontentsline{toc}{chapter}{Glossary}
 
 \chapter{Introduction}
+This document is a review article for my spring term of the Science Research Program (SRP) at Choate Rosemary Hall. The goal of this article is to provide a overview of machine learning (ML), specifically the framework of reinforcement learning (RL), and its applications to various robotic systems. The first section is intended to provide an understanding of artifical neural networks and reinforcement learning assuming no prior knowledge of the subject except for a familiarity with multivariable calculus and linear algbera. Then, the second section will discuss various groups and their work in applying RL to control robotic systems.
 
 \chapter{Machine Learning}
 \section{Introduction to Machine Learning}
 The field of machine learning is fundamentally about finding functions that model data. For example, a speech recognition model takes audio as an input and outputs a text, and AlphaZero takes a chessboard state as an input and outputs a move. These functions may be vastly complex, with far too many parameters and relations for any human to reasonably articulate and program, even if the task comes naturally to our evolved biology. Machine learning offers methods for computers to achieve these tasks, without the need for a human to give explicit instructions on \textit{how} it should be accomplished.
 
-This section will give a very introductory overview of machine learning, the specific details of which will be delved more deeply in following sections. The general framework of creating a machine learning model is as follows:
+This section will give a preliminary peek into machine learning, while specific details will be delved into more deeply in following sections. The general framework of creating a machine learning model is as follows:
 
 \begin{enumerate}
     \item Identification of the properties of a model. What should this model be able to do? What are its inputs and outputs? What kind of model architecture is best suited to its problem?
@@ -144,7 +146,9 @@ The parameters of a model are usually collectively referred to as a vector $\bol
         \vdots
     \end{bmatrix}
 \end{equation}
-For virtually all non-trivial problems, linear relationships are far too reductive to completely capture the complexity of a problem. Such inherent limitations of a model due to its architecture known as \textbf{\gls{model-bias}}. Model architectures will be expounded upon in more detail in Section 1.2.
+For virtually all non-trivial problems, linear relationships are far too reductive to completely capture the complexity of a problem. Such inherent limitations of a model due to its architecture known as \textbf{\gls{model-bias}}. The ubiquitous solution to this problem is the neural network, which we will introduce in Section~\ref{sec:nn}.
+
+% maybe remove this section and just introduce nns immediately
 
 \subsection{Loss Functions}
 
@@ -157,7 +161,7 @@ Losses over all labels in the training data are aggregated into an value for the
 
 $L$ is associated with an \textbf{\gls{error-surface}} that can be understood as the plot of $L$ in a $|\boldsymbol{\theta}|$-dimensional parameter space, though it is usually far too complex to be directly visualized.
 
-\subsection{Optimization}
+\subsection{Optimization}\label{sec:optimization}
 
 Since $L$ is continuous, there must exist some set of parameters $\boldsymbol{\theta}^\ast$ that minimize $L$ and model the training data best.
 \begin{equation}
@@ -182,9 +186,9 @@ The \textbf{learning rate}, $\eta$, determines the scaling for the size of each 
 
 In practice, some conditions may be defined to determine when to cease training, such as setting an upper limit on the number of iterations, setting a time limit, or setting a threshold for a satisfactory value of $L$. These values that modify aspects of a model's learning are called \textbf{\glspl{hyperparameter}}. Hyperparameter optimization is itself a complex topic that is beyond the scope of this section.
 
-When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the updates to $\boldsymbol{\theta}$ vanish, and the algorithm has reached a stable ending point. In an ideal case, this would be the global minima of $L$, the best that the model could possibly reach given the training data. In reality, reaching the global minima is highly improbable, $\boldsymbol{\theta}$ is much more likely to be stuck at a local minima, or a saddle point. We will discuss methods to overcome these challenges in following sections.
+When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the updates to $\boldsymbol{\theta}$ vanish, and the algorithm has reached a stable ending point. In an ideal case, this would be the global minima of $L$, the best that the model could possibly reach given the training data. In reality, reaching the global minima is highly improbable, $\boldsymbol{\theta}$ is much more likely to be stuck at a local minima, or a saddle point. We will discuss methods to overcome these challenges in Section~\ref{sec:gradient-descent-methods}.
 
-\section{Neural Networks (NNs)}
+\section{Neural Networks (NNs)}\label{sec:nn}
 
 \textbf{\Glspl{ann}} often shortened to \textbf{\glspl{nn}}, are one of the largest classes of models used in machine learning. NNs are composed of \textbf{\glspl{node}} that are arranged in layers. The first layer is called the \textbf{input layer}, and the last layer is called the \textbf{output layer}. All layers in between are called \textbf{hidden layers}. NNs are usually fully connected, meaning that each node in a layer is considered by every node in the next layer.
 
@@ -196,14 +200,16 @@ When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the update
 \end{figure}
 
 Each node takes a biased weighted sum of the values of the previous layer, applies an activation function $\phi$, and outputs the value to the next layer.
-\begin{equation}
-    a^{(l)}_j = \phi\left(b_j^{(l)} + \sum_i w_{ij}^{(l-1)} a_i^{(l-1)}\right)
+\begin{equation} \label{eq:node}
+    a^{(l)}_j = \phi\left(b_j^{(l)} + \sum_i w_{ij}^{(l)} a_i^{(l-1)}\right)
 \end{equation}
 Or, using matrix notation, where we define $\phi$ to act component-wise on a vector,
 \begin{equation}
-    \mathbf{a}^{(l)} = \phi\left(\mathbf{b}^{(l)} + \mathbf{W}^{(l-1)}\mathbf{a}^{(l-1)}\right).
+    \mathbf{a}^{(l)} = \phi\left(\mathbf{b}^{(l)} + \mathbf{W}^{(l)}\mathbf{a}^{(l-1)}\right).
 \end{equation}
-In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l$ to be inputted into layer $l+1$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
+$\phi$ is usually the same for every layer of a netowrk, but it may not always be, in which case it may be specified with a subscript, $\phi^{(l)}$. The notable case where this arises is the softmax function for the final layer of a classification network. See Section~\ref{sec:classification} for more details.
+
+In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l-1$ to be inputted into the activation function of layer $l$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. In general, supercripts will denote a layer in the network, and subscripts will denote a specific component of a vector or matrix, such as a specific node or weight of a layer. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
 
 \subsection{Activation Functions and the Universal Approximation Theorems}
 
@@ -245,9 +251,87 @@ The addition of layers to a model increases its complexity, the number of which 
 \section{Backpropagation}
 
 \textbf{Backpropagation} is the textbook algorithm for computing the gradient of the loss function. Essentially, it is the application of the chain rule to neural networks.
+
+Recall Equation~\ref{eq:node},
 \begin{equation}
-    \nabla L = \frac{\partial L}{\partial \theta_i} = \frac{\partial L}{\partial a_j} \frac{\partial a_j}{\partial z_j} \frac{\partial z_j}{\partial \theta_i}
+    a^{(l)}_j = \phi^{(l)}\left(b_j^{(l)} + \sum_i w_{ij}^{(l)} a_i^{(l-1)}\right).
 \end{equation}
+For easier comprehension, define $z^{(l)}_j$ to be the weighted and biased sum of the previous layer that is the input to the activation function.
+\begin{equation}\label{eq:weighted-sum}
+    z^{(l)}_j = b_j^{(l)} + \sum_i w_{ij}^{(l)} a_i^{(l-1)}
+\end{equation}
+Then, we can rewrite the equation as
+\begin{equation}\label{eq:simplified-node}
+    a^{(l)}_j = \phi^{(l)}(z_j^{(l)}).
+\end{equation}
+Assuming a MSE loss, the loss for a single label is the squared difference each node of the output layer $a^{(L)}_j$ and the label $y_j$.
+\begin{equation}
+    C = \sum_j {(a^{(L)}_j - y_j)}^2
+\end{equation}
+In this section, we use $L$ to denote the output layer of the network, so we instead use the other standard $C$ to denote the loss function to avoid cconfusion.
+
+We wish to compute the gradient of the loss by computing the partial derivative of the loss with respect to each parameter of the network. First, consider the weights and biases of the output layer, $w_{ij}^{(L)}$ and $b_j^{(L)}$. By the chain rule,
+\begin{equation}\label{eq:chain-rule-weights}
+    \frac{\partial C}{\partial w_{ij}^{(L)}} = \frac{\partial C}{\partial a_j^{(L)}} \frac{\partial a_j^{(L)}}{\partial z_j^{(L)}} \frac{\partial z_j^{(L)}}{\partial w_{ij}^{(L)}},
+\end{equation}
+and
+\begin{equation}\label{eq:chain-rule-biases}
+    \frac{\partial C}{\partial b_j^{(L)}} = \frac{\partial C}{\partial a_j^{(L)}} \frac{\partial a_j^{(L)}}{\partial z_j^{(L)}} \frac{\partial z_j^{(L)}}{\partial b_j^{(L)}}.
+\end{equation}
+
+For paramaters in the previous layers, we can simply apply the chain rule recursively.
+\begin{equation}\label{eq:big-chain}
+    \frac{\partial C}{\partial a_j^{(L)}} \underbrace{\frac{\partial a_j^{(L)}}{\partial z_j^{(L)}} \frac{\partial z_j^{(L)}}{\partial a_j^{(L-1)}}}_{\text{output layer $L$}} \underbrace{\frac{\partial a_j^{(L-1)}}{\partial z_j^{(L-1)}} \frac{\partial z_j^{(L-1)}}{\partial a_{j}^{(L-2)}}}_{\text{layer $L-1$}} \cdots \underbrace{\frac{\partial a_j^{(l)}}{\partial z_j^{(l)}} \left(\frac{\partial z_j^{(l)}}{\partial w_{ij}^{(l)}} \ \text{or} \ \frac{\partial z_j^{(l)}}{\partial b_j^{(l)}}\right)}_{\text{layer $l$}}
+\end{equation}
+Note the following:
+\begin{equation}\label{eq:partial-z-partial-a}
+    \frac{\partial a_j^{(L)}}{\partial z_j^{(L)}} = \phi^{(L)\prime}(z_j^{(L)}),
+\end{equation}
+\begin{equation}
+    \frac{\partial z_j^{(l)}}{\partial a_{j}^{(l-1)}} = \sum_j w_{ij}^{(l)},
+\end{equation}
+\begin{equation}
+    \frac{\partial z_j^{(L)}}{\partial w_{ij}^{(L)}} = a_i^{(L-1)},
+\end{equation}
+\begin{equation}
+    \frac{\partial z_j^{(L)}}{\partial b_j^{(L)}} = 1.
+\end{equation}
+Substituting,
+
+This notation is somewhat cumbersome, so we will introduce the standard notation used found in literature. Let $\nabla_{a^{(L)}}C$ be the vector of partial derivatives of the loss with respect to the output of the final layer $C$,
+\begin{equation}
+    \nabla_{a^{(L)}}C = \begin{bmatrix}
+        \frac{\partial C}{\partial a_j^{(L)}} \\
+    \end{bmatrix}.
+\end{equation}
+Next, define $\delta^{(l)}$ be the vector of partial derivatives of the loss with respect to the weighted and biased sum of the previous layer $z^{(l)}$,
+\begin{equation}
+    \delta^{(l)} = \begin{bmatrix}
+        \frac{\partial C}{\partial z_1^{(l)}} \\
+        \vdots
+    \end{bmatrix}.
+\end{equation}
+
+
+Thus, we can recursively define $\delta^{(l)}$ by the following two equations:
+\begin{equation}
+    \delta^{(L)} = \nabla_{a^{(L)}}C \odot \phi'(z^{(L)}),
+\end{equation}
+\begin{equation}
+    \delta^{(L-1)} = {\left(\mathbf{W}^{(L)}\right)}^T \delta^{(L)} \odot \phi'(z^{(L-1)}).
+\end{equation}
+
+Using Equation~\ref{eq:weighted-sum} and Equation~\ref{eq:simplified-node}, we can compute these terms as follows:
+\begin{equation}
+    \frac{\partial C}{\partial a_j^{(L)}} = 2(a_j^{(L)} - y_j)
+\end{equation}
+
+Substituting these terms into the equations, we have
+\begin{equation}
+    \frac{\partial C}{\partial w_{ij}^{(L)}} = 2(a_j^{(L)} - y_j) \phi'(z_j^{(L)}) a_i^{(L-1)}.
+\end{equation}
+
+wow this is really complicated to explain with math will come back later
 
 \section{Overfitting}\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
@@ -258,17 +342,60 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Dropout}
 
-\section{Gradient Descent Methods}
+\section{Gradient Descent Methods}\label{sec:gradient-descent-methods}
+
+The naive gradient descent algorithm introduced in Section~\ref{sec:optimization} has many limitations.
+
+Perhaps the most obvious problem is that it is susceptible to critical points that are not the global minima of the loss function. Since $|\boldsymbol{\theta}|$ is usually very large, $L$ will have exceedingly many local minima and saddle points, any one of which may trap gradient descent.
 
 \subsection{Data Batching}
 
-\subsection{Stochastic Gradient Descent (SGD)}
+Rather than considering the entire training dataset all at once, we can iterate through small subsets of the training data, called \textbf{\glspl{batch}}, and compute gradient descent on that subset, updating parameters every batch. This is called \textbf{mini-batch gradient descent}, as opposed to \textbf{batch gradient descent}, which considers the entire training data set. (The author despises this inconsistent terminiology as much as you do.) After all batches have been iterated through, the model is said to have completed one \textbf{epoch} of training. The dataset is then shuffled, and the process is repeated for a specified number of epochs.
+
+The size of a batch and the number of epochs to train for are both hyperparameters.
+
+\subsubsection{Batch size}
+
+
+
+\subsubsection{Stochastic Gradient Descent}
+
+
+Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
+
+put a figure here or smth
+
 
 \subsection{Momentum}
+The \textbf{momentum} modification for gradient descent adds an ``inertia'' term, by also factoring the previous update into the current update. This is similar to the physical concept of momentum, where an object in motion tends to stay in motion.
+
+Define the change in parameters for an update as $\mathbf{v}$, with $\mathbf{v}^{(0)} = 0$, as
+\begin{equation}
+    \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)}),
+\end{equation}
+where $\gamma$ is a hyperparameter that determines the weight to which the previous movement is factored into the current movement. The parameters are then updated as
+\begin{equation}
+    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{v}^{(t)}.
+\end{equation}
+Note that gradient descent without momentum is just a special case of this, where $\gamma = 0$.
+
+put a figure here or smth
+
+In effect, every movement is actually a weighted sum of all previous gradients, rather than just the most recent one.
+\begin{equation}
+    \mathbf{v}^{(n)} = \sum_{i=0}^{n} -\gamma^{n-i} \eta\nabla L(\boldsymbol{\theta}^{(i)}) = -\eta\nabla L(\boldsymbol{\theta}^{(n)}) - \gamma \eta\nabla L(\boldsymbol{\theta}^{(n-1)}) - \gamma^2 \eta\nabla L(\boldsymbol{\theta}^{(n-2)}) - \cdots
+\end{equation}
 
 \subsubsection{Nesterov Momentum}
+Russian mathematician Yurii Nesterov improved on the standard momentum method by instead computing the gradient \textit{after} first applying the intertial term.
+\begin{equation}
+    \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)}).
+\end{equation}
 
 \subsection{Adaptive Learning Rate}
+Since error surfaces are usually complex and non-uniform, a constant learning rate is not always ideal. For example, a small learning rate may be appropiate for a steep slope, but it may also be too small to make any progress on a relatively flat geometry. Conversely, a large learning rate may be appropriate for for flat geometries but may not converge to a minima on steep slopes. Error surfaces may also be anisotropic, where certain parameters are much more senesitive to changes than others.
+
+Adaptive learning rates are a class of methods that introduce a variable $\sigma$ to be both time-dependent and parameter-dependent to allow for more flexibility in the learning process.
 
 \subsubsection{Adagrad}
 
@@ -278,11 +405,27 @@ The addition of layers to a model increases its complexity, the number of which 
 
 \subsection{Learning Rate Scheduling}
 
+
 \subsection{Feature Scaling and Batch Normalization}
 
-\section{Classification}
-
+\section{Classification}\label{sec:classification}
+Some tasks require a model to classify an input into one of a finite number of classes. Perhaps the most well known example is identifying handwritten digits from the MNIST dataset. In such cases, it is far from optimal to represent classes as scalar value features to train towards. Instead, classes are usually represented as one-hot vectors, where the index of the class is set to $1$, and all other indices are set to $0$.
+\begin{equation}
+    \mathbf{y} = \begin{bmatrix}
+        0 \\
+        1 \\
+        0 \\
+        0
+    \end{bmatrix}
+\end{equation}
 \subsection{Softmax}
+The output vector in classification is usually passed through the \textbf{softmax} function. The softmax function is a generalization of the sigmoid/logistic function to vector values, mapping all vectors to be wthin the unit hypercube. The softmax function is useful for classification problems, as it normalizes the output of a model to be a probability distribution over the classes, where the sum of all components is $1$. This is useful for many applications, such as when the output of a node is interpreted as a probability.
+
+Formally defined, it is a function $\sigma\colon \mathbb{R}^K \to (0, 1)^K$, where $K > 1$, takes a vector $\mathbf{z} = (z_1, \dotsc, z_K) \in \mathbb{R}^K$ and computes each component of vector $\sigma(\mathbf{z}) \in (0, 1)^K$ with
+\begin{equation}
+\sigma(\mathbf{z})_i = \frac{e^{z_i}}{\sum_{j=1}^K e^{z_j}}\,.
+\end{equation}
+In other words, every component is exponentiated and then normalized by dividing with the sum of all exponentiated components.
 
 \subsection{Cross Entropy Loss}
 
