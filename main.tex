@@ -126,11 +126,43 @@ Simple scalar values are denoted with regular lowercase symbols, such as $b$, an
 \subsubsection{Operations} % revisit this
 The standard notation for basic vector and matrix operations are used throughout this document.
 
-The Hadamard product, or element-wise product, $\odot$ is defined as
+The \textbf{Hadamard product}, or element-wise product, $\odot$ is defined as
 \begin{equation}
-    ({\mathbf{A} \odot \mathbf{B}})_{ij} = A_{ij}B_{ij}.
+    ({{\mathbf{A} \odot \mathbf{B}}})_{ij} = A_{ij}B_{ij}.
 \end{equation}
-The Kronecker product, often called the ``tensor product'' in machine learning, though not exactly the same as the formal linear algebra definition, is denoted with $\otimes$ and is defined as
+For example,
+\begin{equation}
+    \begin{bmatrix}
+        1 & 2 \\
+        -3 & 4
+    \end{bmatrix} \odot \begin{bmatrix}
+        5 & -6 \\
+        -7 & 8
+    \end{bmatrix} = \begin{bmatrix}
+        5 & -12 \\
+        21 & 32
+    \end{bmatrix}.
+\end{equation}
+
+The \textbf{Hadamard division}, or element-wise division, $\oslash$ is defined analagously as
+\begin{equation}
+    ({{\mathbf{A} \oslash \mathbf{B}}})_{ij} = \frac{A_{ij}}{B_{ij}}.
+\end{equation}
+For example,
+\begin{equation}
+    \begin{bmatrix}
+        12 & 6 \\
+        -4 & -8
+    \end{bmatrix} \oslash \begin{bmatrix}
+        3 & -2 \\
+        -1 & 4
+    \end{bmatrix} = \begin{bmatrix}
+        4 & -3 \\
+        4 & -2
+    \end{bmatrix}.
+\end{equation}
+
+The \textbf{Kronecker product}, often called the ``tensor product'' in machine learning, though not exactly the same as the formal linear algebra definition, is denoted with $\otimes$ and is defined as
 \begin{equation}
     \mathbf{A} \otimes \mathbf{B} = \begin{bmatrix}
         A_{11}\mathbf{B} & A_{12}\mathbf{B} & \cdots & A_{1n}\mathbf{B} \\
@@ -141,17 +173,18 @@ The Kronecker product, often called the ``tensor product'' in machine learning, 
 \end{equation}
 
 \subsection{Calculus}
-The gradient of a multivariable scalar function $F$ is denoted with $\nabla F$, and is defined as
+The gradient of a multivariable scalar function $F$ is denoted with $\nabla F$, and is defined as the vector containing all the first order partial derivatives of $F$.
 \begin{equation}
     \nabla F = \begin{bmatrix}
         \frac{\partial F}{\partial x_1} \\
         \frac{\partial F}{\partial x_2} \\
         \vdots
-    \end{bmatrix}.
+    \end{bmatrix}
 \end{equation}
-The Hessian matrix of a multivariable scalar function $F$ is denoted with $\mathbf{H}(F)$, and is defined as
+The Hessian matrix of a multivariable scalar function $F$ is denoted with $\mathbf{H}(F)$, and is defined as the matrix containing all the second order partial derivatives of $F$.
 \begin{equation}
-    \mathbf{H}(F) = \begin{bmatrix}
+    \mathbf{H}(F) = \nabla \otimes \nabla F =
+    \begin{bmatrix}
         \frac{\partial^2 F}{\partial x_1^2} & \frac{\partial^2 F}{\partial x_1 \partial x_2} & \cdots \\
         \frac{\partial^2 F}{\partial x_2 \partial x_1} & \frac{\partial^2 F}{\partial x_2^2} & \cdots \\
         \vdots & \vdots & \ddots
@@ -392,7 +425,7 @@ Substituting these terms into the equations, we have
 
 wow this is really complicated to explain with math will come back later
 
-\section{Overfitting}\label{sec:overfitting}
+\section{Overfitting }\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
 
 \subsection{Cross-validation}
@@ -401,13 +434,8 @@ wow this is really complicated to explain with math will come back later
 
 \subsection{Dropout}
 
-\section{Gradient Descent Methods}\label{sec:gradient-descent-methods}
 
-The naive gradient descent algorithm introduced in Section~\ref{sec:optimization} has many limitations.
-
-Perhaps the most obvious problem is that it is susceptible to critical points that are not the global minima of the loss function. Since $|\boldsymbol{\theta}|$ is usually very large, $L$ will have exceedingly many local minima and saddle points, any one of which may trap gradient descent.
-
-\subsection{Data Batching}
+\section{Data Batching}
 
 Rather than considering the entire training dataset all at once, we can iterate through small subsets of the training data, called \textbf{\glspl{batch}}, and compute gradient descent on that subset, updating parameters every batch. This is called \textbf{mini-batch gradient descent}, as opposed to \textbf{batch gradient descent}, which considers the entire training data set. (The author despises this inconsistent terminiology as much as you do.) After all batches have been iterated through, the model is said to have completed one \textbf{epoch} of training. The dataset is then shuffled, and the process is repeated for a specified number of epochs.
 
@@ -416,16 +444,22 @@ The size of a batch and the number of epochs to train for are both hyperparamete
 % ehh look into this more
 Batching also has the advantage of being able to parallelize the computation of the gradient, as each batch can be computed independently. Thus, \textbf{graphics processing units} (GPUs) and \textbf{tensor processing units} (TPUs) are highly effective for training neural networks, with training times reduced by orders of magnitude with hardware acceleration.
 
-\subsubsection{Batch size}
+\subsection{Batch size}
 
-
-
-\subsubsection{Stochastic Gradient Descent}
+\subsection{Stochastic Gradient Descent}
 
 
 Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
 
 put a figure here or smth
+
+
+\section{Gradient Descent Methods}\label{sec:gradient-descent-methods}
+
+The naive gradient descent algorithm introduced in Section~\ref{sec:optimization} has many limitations.
+
+Perhaps the most obvious problem is that it is susceptible to critical points that are not the global minima of the loss function. Since $|\boldsymbol{\theta}|$ is usually very large, $L$ will have exceedingly many local minima and saddle points, any one of which may trap gradient descent.
+
 
 
 \subsection{Momentum}
@@ -494,7 +528,34 @@ Typically, $\eta^{(t)}$ is set to decay as the number of iterations increases to
 
 lmao let the model warm up???
 
-\subsection{Feature Scaling and Batch Normalization}
+\section{Normalization}
+So far, we have only discussed optimization methods that do not directly change the loss surface. By appling statistical \textbf{normalization}, we can make the loss sufrace easier to optimize, independently of the optimization method used.
+
+\subsection{Feature Scaling}
+\textbf{Feature scaling}, also called \textbf{data normalization} by some authors, is a technique that the features of the training data such that they are around the same magnitude. This as a variety of benefits, such as faster convergence gradient descent convergence, and in general, greater stability in training.
+
+A common method is \textbf{standardization}, where features are normalized component-wise with their z-score with respect to the training data.
+\begin{equation}
+    \tilde{x}_i = \frac{x_i - \mu_i}{\sigma_i}
+\end{equation}
+Or, with vectors,
+\begin{equation}
+    \tilde{\mathbf{x}} = (\mathbf{x} - \boldsymbol{\mu}) \oslash \boldsymbol{\sigma}
+\end{equation}
+
+\subsection{Activation Normalization}
+In the case of deep learning, normalization can also be applied to the activations of a layer.
+
+\subsubsection{Batch Normalization}
+\textbf{Batch normalization} (BatchNorm) is a very common implementation of activation normalization, applied before the actiavation function of a layer. BatchNorm takes advantage of the parallel computafortion of features within a batch and interleaves standardization simultaneously with the forward pass of the network.
+
+insert figure here
+
+Since normalization with z-scores moves the mean to $0$, this introduces some model bias. Parameters $\boldsymbol{\beta}$ and $\boldsymbol{\gamma}$ are introduced to get rid of this bias. They are \textit{not} hyperparameters and can be learned by the network. It is possible that these parameters will reintroduce disparities in magnitude, but they are usually initialized with values of $\mathbf{1}$ and $\mathbf{0}$ and only change the scaling slowly.
+
+In testing, $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ are replaced with moving averages, as it is infeasible to wait around for a full batch of data.
+
+It is still debated why exactly BatchNorm is so effective, but the prevailing hypothesis is that it has the effect of smoothing the loss surface, making it easier to optimize.
 
 \section{Classification}\label{sec:classification}
 Some tasks require a model to classify an input into one of a finite number of classes. Perhaps the most well known example is identifying handwritten digits from the MNIST dataset. In such cases, it is far from optimal to represent classes as scalar value features to train towards. Instead, classes are usually represented as one-hot vectors, where the index of the class is set to $1$, and all other indices are set to $0$.
@@ -566,11 +627,13 @@ The goal of the agent is to learn a policy that maximizes the expected reward ov
 
 Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi$ is a function that maps from the state space to a probability distribution over the action space, it can be approximated by a classification neural network.
 
-\subsection{Value Functions}
-
-
-
 \section{Policy Gradient}
+
+
+
+
+
+\subsection{Value Functions}
 
 \section{Actor-Critic Methods}
 
