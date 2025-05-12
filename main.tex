@@ -39,7 +39,7 @@
 \addbibresource{citations.bib}
 
 % glossaries
-\usepackage[toc]{glossaries}
+\usepackage[toc]{glossaries, appendix}
 \loadglsentries{glossary}
 \makeglossaries
 
@@ -84,7 +84,7 @@
 \newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
 
 % modify this to change spacing
-\setstretch{}
+\setstretch{1}
 
 % figure out subfles or smth later
 \usepackage{subfiles}
@@ -194,6 +194,11 @@ The Hessian matrix of a multivariable scalar function $F$ is denoted with $\math
     \end{bmatrix}.
 \end{equation}
 
+\subsection{Probability}
+The probability of an event $A$ is denoted with $\mathbb{P}(A)$. The conditional probability of an event $A$ given an event $B$ is denoted with $\mathbb{P}(A|B)$. The joint probability of two events $A$ and $B$ is denoted with $\mathbb{P}(A,B)$, or $\mathbb{P}(A \cap B)$.
+
+The expected value of a random variable or function $X$ is denoted with $\mathbb{E}[X]$.
+
 \subsection{Miscellaneous}
 The argument or set of arguments $a$ at the maximum or minimum of a function $f$ may be defined as
 \begin{equation}
@@ -204,6 +209,8 @@ or
     \arg\min_a f(a),
 \end{equation}
 respectively.
+
+Whenever there is a need to refer to some set of variable that are ``optimal,'' or ``best,'' typically meaning that they maximize or minimize some function, then a superscript $\ast$ is used to denote this.
 
 
 \chapter{Neural Networks}
@@ -343,6 +350,9 @@ This result can be generalized to any non-polynomial activation function, includ
 \subsection{Layers}
 
 The addition of layers to a model increases its complexity, the number of which is referred to as its \textbf{depth}. The number of nodes in a layer is referred to as the layer's \textbf{width}. The width and depth of a model are hyperparameters, and there is a balance to be made between model bias, computational demands, and overfitting, a phenomenon we will discuss in Section~\ref{sec:overfitting}.
+
+The output layer of a model is tailored to the task at hand. A \textbf{regression} model predicts a single, continuous value, represented by a single node in the output layer, or a vector of continuous values, represented by multiple nodes in the output layer. In contrast, a \textbf{classification} model sorts inputs into discrete categories, usually with the final output layer being a vector of nodes, each representing a class, with the value of each node representing the probability that the input belongs to that class. The specific differences between these two types of models will be discussed in Section~\ref{sec:classification}.
+
 \section{Backpropagation}
 
 \textbf{Backpropagation} is the textbook algorithm for computing the gradient of the loss function. Essentially, it is the application of the chain rule to neural networks.
@@ -430,6 +440,13 @@ wow this is really complicated to explain with math will come back later
 
 \section{Overfitting}\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{figs/underfitting_overfitting.png}
+    \caption{Modified from documentation for \texttt{scikit-learn}.~\cite{pedregosa_scikit-learn_2011}}
+    \label{fig:enter-label}
+\end{figure}
 
 Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
 
@@ -598,11 +615,31 @@ Formally defined, it is a function $\sigma\colon \mathbb{R}^K \to (0, 1)^K$, whe
 \end{equation}
 In other words, every component is exponentiated and then normalized by dividing with the sum of all exponentiated components.
 
-insert figure here
-
 The inputs to the softmax function are also called \textbf{logits}.
 
 When implemented in code, the final normalized vector after being passed through the softmax function is then called by \textbf{argmax} to identify the index of the class with the highest probability, and thus the predicted class.
+\begin{equation}
+    \stackrel{\mbox{penultimate activation/logits $\mathbf{z}$}}{\begin{bmatrix}
+        1.2 \\
+        0.3 \\
+        3.0 \\
+        -0.9 \\
+    \end{bmatrix}}
+    \xrightarrow{\text{softmax}}
+    \stackrel{\mbox{final layer probablilities $\sigma({\mathbf{z}})$}}{\begin{bmatrix}
+        0.13 \\
+        0.05 \\
+        0.80 \\
+        0.02 \\
+    \end{bmatrix}}
+    \xrightarrow{\text{argmax}}
+    \stackrel{\mbox{identified class $\mathbf{y}$}}{\begin{bmatrix}
+        0 \\
+        0 \\
+        1 \\
+        0 \\
+    \end{bmatrix}}
+\end{equation}
 
 \subsection{Cross Entropy Loss}
 
@@ -634,68 +671,117 @@ In RL, there are two main components: the \textbf{agent} and the \textbf{environ
 
 \section{Markov Decision Processes (MDPs)}
 
-A \textbf{Markov descision process} (MDP) is a mathematical framework that can be used to model decisionmaking in a RL agent. Formally, an MDP is defined by a tuple $(\mathcal{S}, \mathcal{A}, P, R)$, where:
+A \textbf{Markov descision process} (MDP) is a mathematical framework that can be used to model decisionmaking in a RL agent. MDPs are generalizations of \textbf{Markov chains}, which are stochastic processes that are \textbf{Markovian}, meaning that the future state of the process only depends on the current state, and not on any previous states. In other words, the future is independent of the past given the present; there is no hysteresis. Note that this does not mean that Markovian processes are deterministic.
+
+Formally, an MDP is defined by a tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)$, where:
 \begin{itemize}
     \item $\mathcal{S}$, the \textbf{state space}, is the set of all possible states of the agent, which corresponds to the observations that the agent receives from the environment.
     \item $\mathcal{A}$, the \textbf{action space}, is the set of all possible actions that the agent can take.
-    \item $P$, the \textbf{transition function}, outputs the probability of transitioning from one state to another via a specific action.
-    \item $R$, the \textbf{reward function}, outputs the reward received by the agent after transitioning from one state to another given a specific action.
+    \item $\mathcal{P}$, the \textbf{transition function}, outputs the probability of transitioning from one state to another via a specific action.
+    \item $\mathcal{R}$, the \textbf{reward function}, outputs the reward received by the agent after transitioning from one state to another given a specific action.
+    \item $\gamma \in [0,1]$, the \textbf{discount factor}, is a hyperparameter that determines how much the agent should care about future rewards.
 \end{itemize}
+
+
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{figs/mdp.png}
-    \caption{}
+    \caption{Reprinted from \cite{silver_lecture_nodate}. Gotta make one of my own lol.}
     \label{fig:enter-label}
 \end{figure}
+
+\subsection{Episodes and Trajectories}
+An \textbf{episode} is a single session of the agent in the environment, starting from an initial state $s_0$ and ending when the agent reaches a terminal state $s_T$. The agent interacts with the environment by taking actions $a_t$ and receiving rewards $r_t$ at each time step $t$ according to $\mathcal{R}$. The specific sequence of states, actions, and rewards that the agent experiences during an episode is called a \textbf{trajectory}.
+
+\begin{equation}
+    \tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_T, a_T, r_T)
+\end{equation}
 
 \subsection{Policies}
 
 The \textbf{policy} $\pi(s, a): \mathcal{S} \times \mathcal{A} \to [0,1]$ is a function that outputs the probability of taking action $a$ in state $s$.
-
-Equivalently, the policy can be thought of as a function that maps from the state space to the action space, $\pi: \mathcal{S} \to \mathcal{A}$. More precisely, the policy maps not to just a single action, but a probability distribution over the action space.
-
-The goal of the agent is to learn a policy that maximizes the expected reward over time.
+\begin{equation}
+    \pi(a | s) = \mathbb{P}(a_t = a | s_t = s)
+\end{equation}
+Equivalently, the policy can be thought of as a function that maps from the state space to a probability distribution over the action space.
 
 Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi$ is a function that maps from the state space to a probability distribution over the action space, it can be approximated by a classification neural network. An optimal $\pi$ is almost always highly complex and non-linear, and thus for most applications of RL, $\pi$ is represented by a neural network. The neural network then called the \textbf{policy network} of the agent.
 
-The pairing of deep learning with RL is called \textbf{deep reinforcement learning} (DRL). We will mainly discuss RL concepts and methods in the context of DRL, as it is widespread in the field of robotics, however it is important to note that RL is not limited to DRL\@. In fact, many of the RL methods discussed in this article are not limited to neural networks.
+The pairing of deep learning with RL is called \textbf{deep reinforcement learning} (DRL). We will mainly discuss RL concepts and methods in the context of DRL, as it is widespread in the field of robotics, however it is important to note that RL is not limited to DRL\@. In fact, many of the RL methods discussed in this article can be applied to non-neural network policies as well.
 
 \subsubsection{Evaluating Policies}
-The \textbf{state-value function} $V_\pi(s): \mathcal{S} \to \mathbb{R}$ is a function that outputs the expected \textbf{discounted return} of the agent at state $s$ and following policy $\pi$. $V_\pi(s)$ acts as the metric for how ``good'' a state is for the agent.
+The goal of the agent is to learn a policy that maximizes the expected reward over time. How can we encapuslate this idea mathematically?
 
-Recall that the environment returns a reward according to $R$ each time the agent takes an action. It would be unreasonable to assume that the immediate reward for that action is the only thing that matters. An action may have long-term consequences that affect the future rewards of the agent.
-
-Therefore, we introduce a discount factor $\gamma \in [0,1]$ that determines how much the agent should care about future rewards. The discounted return $G$ is defined as the sum of all future rewards, discounted by $\gamma$.
+Recall that the environment returns a reward according to $R$ each time the agent takes an action $a_t$. It would be unreasonable to assume that the immediate reward for that action is the only thing that matters. An action may have long-term consequences that affect the future rewards of the agent. Therefore rather than only considering a specific $r_t$, we consider the \textbf{discounted return} $G$ as the metric to judge an action.
 \begin{equation}
-    G = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k} = \sum_{k=0}^{\infty} \gamma^k R(s_t, a_t, s_{t+k})
+    G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k}
+\end{equation}
+$G$ can be defined on a trajectory $\tau$ as
+\begin{equation}
+    G(\tau) = \sum_{t=0}^{T} \gamma^t r_t.
 \end{equation}
 
-$V_\pi(s)$ is then defined as the expected discounted return of the agent at state $s$ and following policy $\pi$.
-\begin{equation}
-    V_\pi(s) = \mathbb{E}_\pi[G_t | s_t = s]
+The \textbf{expected return} $J_\pi$ of a policy $\pi$ is then formally defined as the expected value $G$ over all possible trajectories that the agent may take.
+\begin{equation}\label{eq:expected-return}
+    J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_\pi(\tau)\ d\tau,
 \end{equation}
-
-The goal of RL is then to learn a policy $\pi$ that maximizes the expected discounted return $V_\pi(s)$.
+Additionally we may define two other closely related functions, the \textbf{state-value function} $V_\pi(s): \mathcal{S} \to \mathbb{R}$ defined as the expected discounted return of the agent at state $s$,
+\begin{equation}
+    V_\pi(s) = \mathbb{E}_\pi[G_t | s_t = s],
+\end{equation}
+and the \textbf{action-value function} $Q_\pi(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R}$ defined as the expected discounted return of the agent at state $s$ and taking action $a$,
+\begin{equation}
+    Q_\pi(s, a) = \mathbb{E}_\pi[G_t | s_t = s, a_t = a].
+\end{equation}
+Note the following relationship between the two functions,
+\begin{equation}
+    V_\pi(s) = \sum_a \pi(a | s) Q_\pi(s, a).
+\end{equation}
 
 \section{Policy Gradient}
-\textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the policy function, often used in conjunction with deep learning. The policy is represented by a neural network, and the parameters of the network are optimized using gradient descent.
+\textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the expected return $J_\pi$. This is typically accomplished by parameterizing the policy $\pi$ with $\boldsymbol{\theta}$ and then using gradient descent/ascent to optimize $J_\pi$ with respect to $\boldsymbol{\theta}$. Note that this is exactly the same as the optimization problem we have discussed in the previous chapter. In fact, in DRL, the parameters of the policy \textit{are precisely} the parameters of its neural network.
 
-To define the loss function, we need to define the \textbf{action-value function} $Q_\pi(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R}$, which is the expected discounted return of the agent at state $s$ and taking action $a$ and following policy $\pi$. The action-value function is defined as
-\begin{equation}
-    Q_\pi(s, a) = \mathbb{E}_\pi[G_t | s_t = s, a_t = a]
+\subsection{Policy Gradient Theorem}
+The \textbf{policy gradient theorem} (see proof in Appendix~\ref{sec:policy-gradient-theorem-proof}) states that the gradient of $J_\pi$ with respect to the parameters $\boldsymbol{\theta}$ can be expressed as
+\begin{equation}\label{eq:policy-gradient-theorem}
+    \nabla_{\boldsymbol{\theta}} J_\pi =  \mathbb{E}_\pi\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right].
 \end{equation}
-The action-value function is a more general form of the state-value function, as it can be used to evaluate the value of taking a specific action in a specific state, rather than just the value of being in a specific state.
+This is a important result, as it allows us to compute the gradient of $J_\pi$, and thus optimizing $\boldsymbol{\theta}$, without having to compute the state-value function $V_\pi$. Inaddition, policy gradient methods are \textbf{model-free} methods, as they do not require any knowledge of the environment, its associated value functions or the transition function. The theorem only presupposes that $\pi_{\boldsymbol{\theta}}$ is differentiable, which is a reasonable assumption for almost all neural networks.
 
-$Q_\pi(s, a)$ can be computed empirally by sampling trajectories of the agent in the environment. A \textbf{trajectory} is a sequence of states, actions, and rewards that the agent experiences while interacting with the environment. A single session of the agent in the environment is called an \textbf{episode}.
+In practice, the right-hand side of the equation is estimated by sampling trajectories from the environment in a Monte Carlo fashion, and then computing the average over all sampled trajectories.
+\begin{equation}
+    \nabla_{\boldsymbol{\theta}} J_\pi \approx \frac{1}{N} \sum_{i=1}^{N} G(\tau^{(i)}) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t^{(i)} | s_t^{(i)})
+\end{equation}
+
+\subsection{\texttt{REINFORCE}}
+
+In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, which uses an even simpler version of the policy gradient theorem.~\cite{williams_simple_1992}
+\begin{algorithm}
+    \caption{\texttt{REINFORCE} with policy $\pi_{\boldsymbol{\theta}}$, learning rate $\eta$, and $N$ episodes.}\label{alg:REINFORCE}
+    \begin{algorithmic}[1]
+        \State initialize parameters $\boldsymbol{\theta}$
+        \For{$i = 1, \ldots, N$}
+            \State play episode $i$
+            \State $\tau^{(i)} \leftarrow (s_0^{(i)}, a_0^{(i)}, r_0^{(i)}, \ldots, s_T^{(i)}, a_T^{(i)}, r_T^{(i)})$
+            \For{$t = 0, \ldots, T$}
+                \State $G_t^{(i)} \leftarrow \sum_{k=0}^{T} \gamma^k r_{t+k}^{(i)}$
+                \State $\nabla_{\boldsymbol{\theta}} J_\pi \leftarrow G_t^{(i)} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t^{(i)} | s_t^{(i)})$
+                \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \eta \nabla_{\boldsymbol{\theta}} J_\pi$
+            \EndFor
+        \EndFor \\
+        \Return $\boldsymbol{\theta}$
+    \end{algorithmic}
+\end{algorithm}
+Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which means that all the the optimization techniques that we have discussed in Section~\ref{sec:gradient-descent-methods} can be applied here, up to a difference in sign.
 
 
-
-
-
-\subsection{Value Functions}
+\subsection{Proximal Policy Optimization (PPO)}
+\cite{schulman_proximal_2017}
 
 \section{Actor-Critic Methods}
+
+\section{Q-Learning}
 
 \section{Reward Shaping}
 
@@ -745,6 +831,30 @@ Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to wa
 
 
 \section{more examples will go here}
+
+
+\begin{appendices}
+\chapter{Proofs}
+\section{Policy Gradient Theorem (Equation~\ref{eq:policy-gradient-theorem})}\label{sec:policy-gradient-theorem-proof}
+\begin{proof}
+    By definition (Equation~\ref{eq:expected-return}), the expected return $J_\pi$ is defined as
+    \begin{equation*}
+        J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau.
+    \end{equation*}
+    Next, take the gradient with respect to the parameters $\boldsymbol{\theta}$ of the policy $\pi$ to both sides of the equation.
+    \begin{align*}
+        \nabla_{\boldsymbol{\theta}} J_\pi &= \nabla_{\boldsymbol{\theta}} \int_{\tau} G(\tau)\mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \\
+        &= \int_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}} \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{by Leibniz integral rule} \\
+        &= \int_{\tau} G(\tau) \mathbb{P}_{\boldsymbol{\theta}}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{by the chain rule} \\
+        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\right] \tag{by definition of expectation} \\
+        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{T} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
+        \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
+    \end{align*}
+\end{proof}
+\end{appendices}
+
+
+
 
 
 
