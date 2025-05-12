@@ -115,7 +115,8 @@
 
         \textbf{Sky Hong} \\
         \textit{Choate Rosemary Hall} \\
-        \includegraphics[width=0.25\textwidth]{figs/Choate_Rosemary_Hall_Crest.png} \\
+        \vspace{0.5cm}
+        \includegraphics[width=0.25\textwidth]{figs/choate_logo.png} \\
         \vspace{0.8cm}
         \today
         \vspace{0.8cm}
@@ -123,7 +124,7 @@
         \textbf{Abstract}
         \vspace{0.5cm}
     \end{center}
-    the best abstract youve ever read (real)
+    the best abstract youve ever read (real). Everyone knows Mario is cool as [EXPLETIVE DELETED]. But knows what he's thinking? Who knows why he crushes turtles? And why do we think about him as fondly as we think of the mythical (nonexistent?) Dr Pepper? Perchance I believe it was Kant who said ``Experience without theory is blind, but theory without experience is mere intellectual play.'' Mario exhibits experience by crushing turts all day, but he exhibits theory by stating ``Let's-a go!'' Keep it up, baby! When Mario leaves his place of safety to stomp a turty, he knows that he may Die. And yet, for a man who can purchase lives with money, a life becomes a mere store of value. A tax that can be paid for, much as a rich man feels any law with a fine is a price. We think of Mario as a hero, but he is simply a one percenter of a more privileged variety. The lifekind. Perchance.
 \end{titlepage}
 
 
@@ -870,8 +871,8 @@ Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to wa
     \begin{align*}
         \nabla_{\boldsymbol{\theta}} J_\pi &= \nabla_{\boldsymbol{\theta}} \int_{\tau} G(\tau)\mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \\
         &= \int_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}} \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{by Leibniz integral rule} \\
-        &= \int_{\tau} G(\tau) \mathbb{P}_{\boldsymbol{\theta}}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{by the chain rule} \\
-        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\right] \tag{by definition of expectation} \\
+        &= \int_{\tau} G(\tau) \mathbb{P}_{\boldsymbol{\theta}}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{$\partial \log f(x) = \frac{1}{f(x)}\partial f(x)$} \\
+        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\right] \tag{by the definition of expectation} \\
         &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{T} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
         \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
     \end{align*}
