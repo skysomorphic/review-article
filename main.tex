@@ -79,6 +79,7 @@
 \newtheorem*{note}{Note}
 \usepackage{setspace}
 
+
 \newenvironment{solution}[1][\it{Solution}]{\textbf{#1. } }{$\square$}
 
 \newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
@@ -91,20 +92,42 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{document}
-
 \title{robot doggo can learn how to walk??? \\
     \large{An introductory survey of reinforcement learning and its applications to robotic systems.}}
 \author{Sky Hong \\
     \textit{Choate Rosemary Hall}}
 \date{\today}
-\maketitle
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+
+        \huge
+        \textbf{robot doggo can learn how to walk???}
+
+        \vspace{0.5cm}
+        \large
+        An introductory survey of reinforcement learning and its applications to robotic systems.
+
+        \vfill
+
+        \textbf{Sky Hong} \\
+        \textit{Choate Rosemary Hall} \\
+        \includegraphics[width=0.25\textwidth]{figs/Choate_Rosemary_Hall_Crest.png} \\
+        \vspace{0.8cm}
+        \today
+        \vspace{0.8cm}
+        \vfill
+        \textbf{Abstract}
+        \vspace{0.5cm}
+    \end{center}
+    the best abstract youve ever read (real)
+\end{titlepage}
+
 
 % definitely consider making a better title along with formatting stuff
-
-\begin{abstract}
-    something idk, figure out final formatting later
-\end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -355,7 +378,7 @@ The output layer of a model is tailored to the task at hand. A \textbf{regressio
 
 \section{Backpropagation}
 
-\textbf{Backpropagation} is the textbook algorithm for computing the gradient of the loss function. Essentially, it is the application of the chain rule to neural networks.
+\textbf{Backpropagation} is the textbook algorithm for computing the gradient of the loss function. Essentially, it is the application of the chain rule to neural networks~\cite{nielsen_neural_2019,sanderson_backpropagation_2017}.
 
 Recall Equation~\ref{eq:node},
 \begin{equation}
@@ -461,7 +484,7 @@ The most common variant of cross-validation is $k$-fold cross-validation, a non-
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/kfold_cross_validation.png}
-    \caption{}
+    \caption{\cite{commons_filek-fold_2024}}
     \label{fig:enter-label}
 \end{figure}
 
@@ -550,6 +573,8 @@ $\sigma$ can only increase in Adagrad, which can cause problems if if the effect
 This allows RMSprop to be more flexible and responsive than Adagrad, slowing down when the gradient is large and speeding up when the gradient is small.
 \subsubsection{Adam}
 \textbf{Adaptive Moment Estimation}, or \textbf{Adam}, is a more advanced adaptive learning rate method that combines the ideas of momentum and RMSprop. It uses two decay factors, $\beta_1$ and $\beta_2$, to weight the previous iterations of the gradient and the squared gradient, respectively.
+
+\cite{kingma_adam_2017}
 
 read paper come back later
 
@@ -663,7 +688,7 @@ The framework of \textbf{reinforcement learning (RL)} is a class of ML technique
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{figs/RL_schematic.png}
-    \caption{}
+    \caption{\cite{commons_filemarkov_2023}}
     \label{fig:enter-label}
 \end{figure}
 
