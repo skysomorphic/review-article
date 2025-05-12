@@ -52,6 +52,9 @@
 \usepackage{circuitikz}
 \usepackage{gensymb}
 
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
 
 \setlength{\parindent}{0pt}
 
@@ -303,7 +306,7 @@ $\phi$ is usually the same for every layer of a netowrk, but it may not always b
 
 In this article, we will use the notation $a^{(l)}_i$ to refer to the output of node $i$ in layer $l$, and $\mathbf{a}^{(l)}$ to refer to the vector of outputs of all nodes in layer $l$. The weights and biases applied onto nodes from layer $l-1$ to be inputted into the activation function of layer $l$ will be denoted as $\mathbf{W}^{(l)}$ and $\mathbf{b}^{(l)}$, respectively. In general, supercripts will denote a layer in the network, and subscripts will denote a specific component of a vector or matrix, such as a specific node or weight of a layer, as described in Section~\ref{notation}. Note that this superscript notation is different from the one we use with $\boldsymbol{\theta}^{(t)}$, which is used to denote the iteration of the gradient descent algorithm.
 
-\subsection{Activation Functions and the Universal Approximation Theorems}
+\subsection{Activation Functions}
 
 For virtually all non-trivial problems, linear relationships are far too reductive to completely capture the complexity of the task at hand. Therefore, a variety of non-linear \textbf{activation functions} are applied at each node to eliminate this kind of model bias to allow the model to learn more non-linear relationships.
 
@@ -335,7 +338,7 @@ Equation \ref{eq:approximation} is equivalent to a neural network with one hidde
     \label{fig:enter-label}
 \end{figure}
 
-This result can be generalized to any non-polynomial activation function, including ReLUs, in the \textbf{universal approximation theorems}, implying that NNs that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. It is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal.
+This result can be generalized to any non-polynomial activation function, including ReLUs, in the \textbf{universal approximation theorems}, implying that neural networks that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. This property of neural networks become especially useful in other areas of machine learning where aribtrary function approximators are needed. Though, it is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal.
 
 \subsection{Layers}
 
@@ -428,12 +431,31 @@ wow this is really complicated to explain with math will come back later
 \section{Overfitting}\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
 
+Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
+
 \subsection{Cross-validation}
-To`'
+\textbf{Cross-validation} is a technique for estimating the performance of a model on unseen data, from only the training set. This ensures that any signs of overfitting can be monitored during training. Cross-validation splits the training data into a training set and a validation set. The model is trained on the training set, and the performance is evaluated on the validation set. This process is repeated for different partitions of the training data, and the average performance is taken as the final metric.
+
+Cross-validation can be exhaustive where every possible partition is evaluated (leave-one-out cross-validation), though this is usually infeasible for large datasets.
+
+\subsubsection{$k$-fold cross-validation}
+The most common variant of cross-validation is $k$-fold cross-validation, a non-exhaustive method that randomly partitions the training data into $k$ equally sized subsets called \textbf{folds}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/kfold_cross_validation.png}
+    \caption{}
+    \label{fig:enter-label}
+\end{figure}
+
+$k$ is a hyperparameter, usually set to $5$ or $10$. The model is trained on $k-1$ folds, and the performance is evaluated on the remaining fold. This process is repeated for all combinations of folds, for a total of $k$ iterations. Essentially, this is leave-one out applied to blocks of data rather than individual data points. The performance is averaged over all $k$ iterations to give a final performance metric that is much more robust to overfitting than an unpartitioned training set
 
 \subsection{Regularization}
 
+learn more about this
+
 \subsection{Dropout}
+learn more about this
 
 
 \section{Data Batching}
@@ -448,7 +470,6 @@ Batching also has the advantage of being able to parallelize the computation of 
 \subsection{Batch size}
 
 \subsection{Stochastic Gradient Descent}
-
 
 Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
 
@@ -602,7 +623,12 @@ So far, we have only discussed ML techniques that are \textbf{supervised}, where
 
 The framework of \textbf{reinforcement learning (RL)} is a class of ML techniques that do not require labeled data. Instead, RL models learn by interacting with an environment, and receiving feedback in the form of rewards or penalties. The goal of an RL model is to learn a \textbf{policy} that maximizes the expected reward over time.
 
-insert figure here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/RL_schematic.png}
+    \caption{}
+    \label{fig:enter-label}
+\end{figure}
 
 In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a reward.
 
@@ -616,7 +642,12 @@ A \textbf{Markov descision process} (MDP) is a mathematical framework that can b
     \item $R$, the \textbf{reward function}, outputs the reward received by the agent after transitioning from one state to another given a specific action.
 \end{itemize}
 
-insert figure here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/mdp.png}
+    \caption{}
+    \label{fig:enter-label}
+\end{figure}
 
 \subsection{Policies}
 
@@ -626,9 +657,37 @@ Equivalently, the policy can be thought of as a function that maps from the stat
 
 The goal of the agent is to learn a policy that maximizes the expected reward over time.
 
-Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi$ is a function that maps from the state space to a probability distribution over the action space, it can be approximated by a classification neural network.
+Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi$ is a function that maps from the state space to a probability distribution over the action space, it can be approximated by a classification neural network. An optimal $\pi$ is almost always highly complex and non-linear, and thus for most applications of RL, $\pi$ is represented by a neural network. The neural network then called the \textbf{policy network} of the agent.
+
+The pairing of deep learning with RL is called \textbf{deep reinforcement learning} (DRL). We will mainly discuss RL concepts and methods in the context of DRL, as it is widespread in the field of robotics, however it is important to note that RL is not limited to DRL\@. In fact, many of the RL methods discussed in this article are not limited to neural networks.
+
+\subsubsection{Evaluating Policies}
+The \textbf{state-value function} $V_\pi(s): \mathcal{S} \to \mathbb{R}$ is a function that outputs the expected \textbf{discounted return} of the agent at state $s$ and following policy $\pi$. $V_\pi(s)$ acts as the metric for how ``good'' a state is for the agent.
+
+Recall that the environment returns a reward according to $R$ each time the agent takes an action. It would be unreasonable to assume that the immediate reward for that action is the only thing that matters. An action may have long-term consequences that affect the future rewards of the agent.
+
+Therefore, we introduce a discount factor $\gamma \in [0,1]$ that determines how much the agent should care about future rewards. The discounted return $G$ is defined as the sum of all future rewards, discounted by $\gamma$.
+\begin{equation}
+    G = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \cdots = \sum_{k=0}^{\infty} \gamma^k r_{t+k} = \sum_{k=0}^{\infty} \gamma^k R(s_t, a_t, s_{t+k})
+\end{equation}
+
+$V_\pi(s)$ is then defined as the expected discounted return of the agent at state $s$ and following policy $\pi$.
+\begin{equation}
+    V_\pi(s) = \mathbb{E}_\pi[G_t | s_t = s]
+\end{equation}
+
+The goal of RL is then to learn a policy $\pi$ that maximizes the expected discounted return $V_\pi(s)$.
 
 \section{Policy Gradient}
+\textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the policy function, often used in conjunction with deep learning. The policy is represented by a neural network, and the parameters of the network are optimized using gradient descent.
+
+To define the loss function, we need to define the \textbf{action-value function} $Q_\pi(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R}$, which is the expected discounted return of the agent at state $s$ and taking action $a$ and following policy $\pi$. The action-value function is defined as
+\begin{equation}
+    Q_\pi(s, a) = \mathbb{E}_\pi[G_t | s_t = s, a_t = a]
+\end{equation}
+The action-value function is a more general form of the state-value function, as it can be used to evaluate the value of taking a specific action in a specific state, rather than just the value of being in a specific state.
+
+$Q_\pi(s, a)$ can be computed empirally by sampling trajectories of the agent in the environment. A \textbf{trajectory} is a sequence of states, actions, and rewards that the agent experiences while interacting with the environment. A single session of the agent in the environment is called an \textbf{episode}.
 
 
 
@@ -645,6 +704,37 @@ Recall the universal approximation theorem from Section~\ref{sec:nn}. Since $\pi
 \chapter{Robotic Systems and Control}
 
 \section{Hutter, Lee, Hwangbo et al.\ and the ANYmal by ANYbotics}
+Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration.
+
+Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to walk and navigate rather than using previous traditional pathfinding and trajectory optimization methods.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/anymal_RL.png}
+    \caption{Repreinted from~\cite{hwangbo_learning_2019}.}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/anymal_detailed.png}
+    \caption{Reprinted from~\cite{hwangbo_learning_2019}.}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/figure1.pdf}
+    \caption{Reprinted from~\cite{lee_learning_2020}.}
+    \label{fig:enter-label}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/figure4.pdf}
+    \caption{Reprinted from~\cite{lee_learning_2020}.}
+    \label{fig:enter-label}
+\end{figure}
 
 \cite{hutter_legged_2022}
 \cite{lee_learning_2020}
