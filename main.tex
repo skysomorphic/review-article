@@ -139,6 +139,8 @@
 \section{Preface}
 This document is a review article for my spring term of the Science Research Program (SRP) at Choate Rosemary Hall. The goal of this article is to provide a overview of machine learning (ML), specifically the framework of reinforcement learning (RL), and its applications to various robotic systems. The first section is intended to provide an understanding of artifical neural networks and reinforcement learning assuming no prior knowledge of the subject except for a grasp of multivariable calculus and linear algbera. Then, the second section will discuss various groups and their work in applying RL to control robotic systems.
 
+The \TeX~and Python source code for this article is available on GitHub at \url{https://github.com/skysomorphic/review-article}.
+
 \section{Mathematical Notation}\label{notation}
 This section will introduce the standard for the mathematical notation used in this document, as well as defining any concepts that are not ubiquitous and may be unfamiliar to the reader. As new topics are introduced, new notation may be defined in their respective sections, as this section is for purely mathematical notation.
 
@@ -223,6 +225,11 @@ The probability of an event $A$ is denoted with $\mathbb{P}(A)$. The conditional
 
 The expected value of a random variable or function $X$ is denoted with $\mathbb{E}[X]$.
 
+These two operators are related by the following identity.
+\begin{equation}
+    \mathbb{E}[X] = \sum_i x_i \mathbb{P}(X=x_i) = \int x\mathbb{P}(X=x)\ dx
+\end{equation}
+
 \subsection{Miscellaneous}
 The argument or set of arguments $a$ at the maximum or minimum of a function $f$ may be defined as
 \begin{equation}
@@ -306,7 +313,7 @@ The \textbf{learning rate}, $\eta$, determines the scaling for the size of each 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/gradient_descent.png}
-    \caption{Visualization of naive gradient descent on the Himmelblau function \cite{jamil_literature_2013} by a 3D plot (left), and a contour plot (right). The red line shows $100$ iterations of gradient descent, starting from intial parameters $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. (Original)}
+    \caption{Visualization of naive gradient descent on the Himmelblau function \cite{jamil_literature_2013} by a 3D plot (left), and a contour plot (right). The red line shows $100$ iterations of gradient descent, starting from intial parameters $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
     \label{fig:enter-label}
 \end{figure}
 
@@ -465,14 +472,16 @@ wow this is really complicated to explain with math will come back later
 \section{Overfitting}\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
 
+Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
+
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figs/underfitting_overfitting.png}
-    \caption{Modified from documentation for \texttt{scikit-learn}.~\cite{pedregosa_scikit-learn_2011}}
-    \label{fig:enter-label}
+    \caption{Polynomial models of different degrees fitted to sample data. Modified from documentation for \texttt{scikit-learn}~\cite{pedregosa_scikit-learn_2011}.}
+    \label{fig:overfitting}
 \end{figure}
 
-Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
+The degree $1$ polynomial in the left of Figure~\ref{fig:overfitting} is underfitted and has too much model bias, while the degree $15$ polynomial on the right is overfitted and has too much model variance.
 
 \subsection{Cross-validation}
 \textbf{Cross-validation} is a technique for estimating the performance of a model on unseen data, from only the training set. This ensures that any signs of overfitting can be monitored during training. Cross-validation splits the training data into a training set and a validation set. The model is trained on the training set, and the performance is evaluated on the validation set. This process is repeated for different partitions of the training data, and the average performance is taken as the final metric.
@@ -514,8 +523,12 @@ Batching also has the advantage of being able to parallelize the computation of 
 
 Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
 
-put a figure here or smth
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/stochastic_comparison.png}
+    \caption{Comparison of SDG with naive GD on the Himmelblau function by a 3D plot (left), and a contour plot (right). Artificial noise selected from a normal distribtuion was added to the step direction to simulate stochastic effects. $100$ iterations, $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
+    \label{fig:enter-label}
+\end{figure}
 
 \section{Gradient Descent Methods}\label{sec:gradient-descent-methods}
 
@@ -538,8 +551,6 @@ where $\gamma$ is a hyperparameter that determines the weight to which the previ
 \end{equation}
 Note that gradient descent without momentum is just a special case of this, where $\gamma = 0$.
 
-put a figure here or smth
-
 In effect, every movement is actually a weighted sum of all previous gradients, rather than just the most recent one.
 \begin{equation}
     \mathbf{v}^{(n)} = \sum_{i=0}^{n} -\gamma^{n-i} \eta\nabla L(\boldsymbol{\theta}^{(i)}) = -\eta\nabla L(\boldsymbol{\theta}^{(n)}) - \gamma \eta\nabla L(\boldsymbol{\theta}^{(n-1)}) - \gamma^2 \eta\nabla L(\boldsymbol{\theta}^{(n-2)}) - \cdots
@@ -550,6 +561,13 @@ Russian mathematician Yurii Nesterov improved on the standard momentum method by
 \begin{equation}
     \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)}).
 \end{equation}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/nesterov_comparison.png}
+    \caption{Comparison of Nesterov momentum optimizers on the Himmelblau function with various values of $\alpha$ visualized by a 3D plot (left), and a contour plot (right). $100$ iterations, $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
+    \label{fig:enter-label}
+\end{figure}
 
 \subsection{Adaptive Learning Rate}
 Since error surfaces are usually complex and non-uniform, a constant learning rate is not always ideal. For example, a small learning rate may be appropiate for a steep slope, but it may also be too small to make any progress on a relatively flat geometry. Conversely, a large learning rate may be appropriate for for flat geometries but may not converge to a minima on steep slopes. Error surfaces may also be anisotropic, where certain parameters are much more senesitive to changes than others.
