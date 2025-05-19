@@ -1,33 +1,60 @@
 \documentclass[12pt]{report}
 
-% Language setting
-% Replace `english' with e.g. `spanish' to change the document language
+% language
 \usepackage[english]{babel}
 
-% Set page size and margins
-% Replace `letterpaper' with `a4paper' for UK/EU standard size
+% page formatting
 \usepackage[letterpaper,margin=1in,marginparwidth=1.75cm]{geometry}
 \geometry{letterpaper}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+\usepackage{setspace}
+\setstretch{1} % modify this to change line spacing
 
-% Useful packages
+% math and symbols
 \usepackage{amsmath,amsthm,amssymb,color,latexsym,mathtools}
-\usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{subfig}
-\usepackage{mathtools}
-\usepackage{booktabs}
 \usepackage{cancel}
 \usepackage[all]{xy}
-\usepackage{cleveref}
 \usepackage{csquotes}
-
 \usepackage{bm}
-
+\usepackage{gensymb}
 \usepackage[shortlabels]{enumitem}
 \usepackage[table]{xcolor}
-\usepackage{url}
 
-\usepackage{parskip}
+% theorems
+\newtheorem{problem}{Problem}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{proposition}{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{postulate}[theorem]{Postulate}
+\theoremstyle{definition}
+\newtheorem{defn}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newtheorem*{notation}{Notation}
+\newtheorem*{note}{Note}
+\newenvironment{solution}[1][\it{Solution}]{\textbf{#1. } }{$\square$}
+
+\newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
+
+% figures
+\usepackage{graphicx, subfig}
+\usepackage{array, booktabs}
+\usepackage{algorithm, algpseudocode}
+
+\usepackage{float}
+\usepackage[labelfont=bf, font={small,sf}]{caption}
+
+\usepackage{tikz, circuitikz}
+\usetikzlibrary{positioning}
+
+% style
+\usepackage{url}
+\usepackage{hyperref}
+% \numberwithin{equation}{subsection}
 
 % bibliography, play around with these maybe
 \usepackage[
@@ -42,50 +69,6 @@
 \usepackage[toc]{glossaries, appendix}
 \loadglsentries{glossary}
 \makeglossaries
-
-
-% \numberwithin{equation}{subsection}
-
-\usepackage{array}
-\usepackage{float}
-\usepackage[labelfont=bf, font={small,sf}]{caption}
-\usepackage{circuitikz}
-\usepackage{gensymb}
-
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-
-
-\setlength{\parindent}{0pt}
-
-% math theorem styles
-
-\newtheorem{problem}{Problem}
-
-\newtheorem{theorem}{Theorem}
-\newtheorem*{proposition}{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{conjecture}[theorem]{Conjecture}
-\newtheorem{postulate}[theorem]{Postulate}
-
-\theoremstyle{definition}
-\newtheorem{defn}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
-
-\theoremstyle{remark}
-\newtheorem*{remark}{Remark}
-\newtheorem*{notation}{Notation}
-\newtheorem*{note}{Note}
-\usepackage{setspace}
-
-
-\newenvironment{solution}[1][\it{Solution}]{\textbf{#1. } }{$\square$}
-
-\newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
-
-% modify this to change spacing
-\setstretch{1}
 
 % figure out subfles or smth later
 \usepackage{subfiles}
@@ -312,6 +295,17 @@ Since brute-forcing the error surface of $L$ is infeasible with a large number o
 \end{equation}
 The \textbf{learning rate}, $\eta$, determines the scaling for the size of each step.
 
+\begin{algorithm}
+    \caption{Naive gradient descent with leraning rate $\eta$ over N iterations.}\label{alg:naive-gd}
+    \begin{algorithmic}[1]
+        \State initialize parameters $\boldsymbol{\theta}$
+        \For{$i = 1, \ldots, N$}
+            \State compute gradient of loss $\nabla L(\boldsymbol{\theta})$ over the dataset
+            \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla L(\boldsymbol{\theta})$
+        \EndFor \\
+        \Return $\boldsymbol{\theta}$
+    \end{algorithmic}
+\end{algorithm}
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/gradient_descent.png}
@@ -525,10 +519,24 @@ Batching also has the advantage of being able to parallelize the computation of 
 
 Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
 
+\begin{algorithm}
+    \caption{Stochastic gradient descent with learning rate $\eta$ over N epochs.}\label{alg:sgd}
+    \begin{algorithmic}[1]
+        \State initialize parameters $\boldsymbol{\theta}$
+        \For{$i = 1, \ldots, N$}
+            \State shuffle dataset
+            \ForAll{example $\mathbf{x}$ in dataset}
+                \State compute gradient of loss $\nabla L_\mathbf{x}(\boldsymbol{\theta})$ with respect to $\mathbf{x}$
+                \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla L_x(\boldsymbol{\theta})$
+            \EndFor
+        \EndFor \\
+        \Return $\boldsymbol{\theta}$
+    \end{algorithmic}
+\end{algorithm}
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/stochastic_comparison.png}
-    \caption{Comparison of SDG with naive GD on the Himmelblau function by a 3D plot (left), and a contour plot (right). Artificial noise selected from a normal distribtuion was added to the step direction to simulate stochastic effects. $100$ iterations, $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
+    \caption{Comparison of SDG with naive GD on the Himmelblau function by a 3D plot (left), and a contour plot (right). Artificial noise selected from a normal distribtuion was added to the step direction to simulate stochastic effects. $1$ epoch, $100$ iterations, $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
     \label{fig:enter-label}
 \end{figure}
 
@@ -563,13 +571,14 @@ Russian mathematician Yurii Nesterov improved on the standard momentum method by
 \begin{equation}
     \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)}).
 \end{equation}
-
+This ``look-ahead'' method allows the algorithm to be more responsive to the current gradient, and it is usually more effective than standard momentum. As such, Nesterov momentum is usually the default momentum implementation in software.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/nesterov_comparison.png}
     \caption{Comparison of Nesterov momentum optimizers on the Himmelblau function with various values of $\alpha$ visualized by a 3D plot (left), and a contour plot (right). $100$ iterations, $\boldsymbol{\theta}^{(0)} = [1,7]$, with $\eta = 0.001$. Local minima are marked with $\times$. (Original)}
     \label{fig:enter-label}
 \end{figure}
+Notice how momentum does not necessarily direct the model to the nearest local minima from the initial parameters. This has useful implications for training, as the model may be able to escape small local minima and saddle points, and it may be able to ``swing'' around large local minima to find a better minima elsewhere.
 
 \subsection{Adaptive Learning Rate}
 Since error surfaces are usually complex and non-uniform, a constant learning rate is not always ideal. For example, a small learning rate may be appropiate for a steep slope, but it may also be too small to make any progress on a relatively flat geometry. Conversely, a large learning rate may be appropriate for for flat geometries but may not converge to a minima on steep slopes. Error surfaces may also be anisotropic, where certain parameters are much more senesitive to changes than others.
@@ -701,10 +710,10 @@ Note that $\ln y'_i$ is always negative because $y'$ is the output of the softma
 
 Cross entropy allso usually gives smoother loss surfaces compared to MSE for classification problems.
 
-\chapter{Reinforcement Learning}
-So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human,which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
+\chapter{Reinforcement Learning} % make all of this chapter more mathmatically rigorous
+So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human, which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
 
-The framework of \textbf{reinforcement learning (RL)} is a class of ML techniques that do not require labeled data. Instead, RL models learn by interacting with an environment, and receiving feedback in the form of rewards or penalties. The goal of an RL model is to learn a \textbf{policy} that maximizes the expected reward over time.
+The framework of \textbf{reinforcement learning (RL)} is a class of ML techniques that do not require labeled data, and thus are generally unsupervised. Instead, RL models learn by interacting with an environment, and receiving feedback in the form of rewards or penalties. The goal of an RL model is to learn a \textbf{policy} that maximizes the expected reward over time.
 
 \begin{figure}[h]
     \centering
@@ -712,6 +721,16 @@ The framework of \textbf{reinforcement learning (RL)} is a class of ML technique
     \caption{\cite{commons_filemarkov_2023}}
     \label{fig:enter-label}
 \end{figure}
+
+\begin{tikzpicture}
+    \node (agent) [draw, rectangle, minimum width=2cm, minimum height=1cm] {Agent};
+    \node (env) [draw, rectangle, minimum width=2cm, minimum height=1cm, right=of agent] {Environment};
+
+    \draw[->] (agent.east) -- node[above] {action} (env.west);
+    \draw[->] (env.east) -- node[above] {observation} (agent.west);
+    \draw[->] (env.south) -- node[below] {reward} (agent.north);
+\end{tikzpicture}
+
 
 In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a reward.
 
@@ -770,8 +789,10 @@ $G$ can be defined on a trajectory $\tau$ as
 
 The \textbf{expected return} $J_\pi$ of a policy $\pi$ is then formally defined as the expected value $G$ over all possible trajectories that the agent may take.
 \begin{equation}\label{eq:expected-return}
-    J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_\pi(\tau)\ d\tau,
+    J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_\pi(\tau)\ d\tau.
 \end{equation}
+This value, $J_\pi$, is the value that we want to maximize to optimize the policy $\pi$.
+
 Additionally we may define two other closely related functions, the \textbf{state-value function} $V_\pi(s): \mathcal{S} \to \mathbb{R}$ defined as the expected discounted return of the agent at state $s$,
 \begin{equation}
     V_\pi(s) = \mathbb{E}_\pi[G_t | s_t = s],
@@ -786,6 +807,8 @@ Note the following relationship between the two functions,
 \end{equation}
 
 \subsubsection{Bellman Equation}
+
+
 
 \subsubsection{Learning Policies}
 
@@ -831,43 +854,14 @@ Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which m
 
 \section{Actor-Critic Methods}
 In contrast to policy gradient methods, \textbf{actor-critic} methods learns the state-value function $V_\pi$ directly. We define a \textbf{critic} as a seperate entity from the the agent, which also may be a neural network.
-
-\subsection{Advantage Actor-Critic (A2C)}
-
-
-\section{Q-Learning}
-
-\section{Reward Shaping}
-
-Some environments have very sparse rewards, such as playing chess or go, where the agent only receives a definitive reward at the end of the game based on whether it wins or loses. This is a problem for learning, as the agent have trouble associating the actions it took during the game with the final reward. This is an example of the \textbf{credit assignment problem}, which is the fundamental reason why RL is so difficult.
-
-Thus, we may define additional rewards to guide the agent, by \textbf{reward shaping}. By applying domain knowledge, we can notice that certain actions are more likely to lead to a positive outcome, and assign a small reward for those actions, even if they are not inherent in the environment.
-
-\subsection{Example: VizDoom}
-
-VizDoom is a adaptation of the classic 1996 video game \textit{Doom} for use as a RL research environment~\cite{kempka_vizdoom_2016}. \textit{Doom} is a first-person shooter game where the player must navigate through a maze and defeat enemies. The game is highly complex, but rewards are sparse, as the player only receives a reward when they beat the level. Therefore, researchers introduce additional rewards for picking up medkits, killing enemies, and even just surviving and moving around.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.5\linewidth]{figs/doom.png}
-    \caption{Reprinted from~\cite{kempka_vizdoom_2016}.}
-    \label{fig:enter-label}
-\end{figure}
-
-\subsection{Curiosity}
-\textbf{Curiosity} is a form of intristic reward that incentivizes the agent to explore its environment and to encounter novel states. The idea behind curiosity is that increasing the seen state space of the agent will allow it learn a better policy, as it has a more complete understanding of the environment. When there are sparse extrinsic rewards, or even a complete absence of extrinsic rewards, curiosity can be effective for training an agent in such environments~\cite{pathak_curiosity-driven_2017}. This idea finds applications where the environment is not well defined and lacking of any obvious reward structure.
-
-maybe put fig here?
-
-\section{Imitation Learning}
-In cases where an optimal or desired behavior is known, such as in the case of human demonstrations, it may be more efficient to train a model to imitate the behavior from an expert rather than learning from scratch. This is called \textbf{imitation learning}. Immitation learning is a form of supervised learning, where the model is trained on a dataset of demonstrations.
-
-\subsection{Behavior Cloning (BC)}
+A survey of inverse reinforcement learning: Challenges, methods and progress
+Author links open overlay panel
 \textbf{Behavior cloning (BC)} is a form of imitation learning, where the policy network $\pi(a|s)$ simply learns from state-action pairs $(s, a)$ from expert demonstrations. This technique is very straightforward to implement but it is also very limited. For example, mismatches may occur when the learned policy is placed in an unfamiliar environment that was never reached by the expert. A simple analogy, is learning how to play soccer by watching Messi. You are not Messi. Messi will never make basic mistakes, but you will, and you will not know what to do in those situations.
 
 \subsection{more methods look into them}
 
-\section{Inverse Reinforcement Learning (IRL)}
+\subsection{Inverse Reinforcement Learning (IRL)}
+In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} is a form of imitation learning where the model learns a reward function (usually in the form of a neural network) from expert demonstrations, rather than the expert policy. The learned reward function can then be used to train a from-scratch agent using standard RL methods.
 
 \chapter{Robotic Systems and Control}
 
