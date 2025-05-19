@@ -650,6 +650,7 @@ Since normalization with z-scores moves the mean to $0$, this introduces some mo
 In testing, $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ are replaced with moving averages, as it is infeasible to wait around for a full batch of data.
 
 It is still debated why exactly BatchNorm is so effective, but the prevailing hypothesis is that it has the effect of smoothing the loss surface, making it easier to optimize.
+\cite{ioffe_batch_2015}\cite{ioffe_batch_2017}\cite{santurkar_how_2019}
 
 \section{Classification}\label{sec:classification}
 Some tasks require a model to classify an input into one of a finite number of classes. Perhaps the most well known example is identifying handwritten digits from the MNIST dataset. In such cases, it is far from optimal to represent classes as scalar value features to train towards. Instead, classes are usually represented as one-hot vectors, where the index of the class is set to $1$, and all other indices are set to $0$.
@@ -854,8 +855,35 @@ Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which m
 
 \section{Actor-Critic Methods}
 In contrast to policy gradient methods, \textbf{actor-critic} methods learns the state-value function $V_\pi$ directly. We define a \textbf{critic} as a seperate entity from the the agent, which also may be a neural network.
-A survey of inverse reinforcement learning: Challenges, methods and progress
-Author links open overlay panel
+
+\subsection{Advantage Actor-Critic (A2C)}
+
+\section{Q-Learning}
+
+\section{Reward Shaping}
+Some environments have very sparse rewards, such as playing chess or go, where the agent only receives a definitive reward at the end of the game based on whether it wins or loses. This is a problem for learning, as the agent have trouble associating the actions it took during the game with the final reward. This is an example of the \textbf{credit assignment problem}, which is the fundamental reason why RL is so difficult.
+
+Thus, we may define additional rewards to guide the agent, by \textbf{reward shaping}. By applying domain knowledge, we can notice that certain actions are more likely to lead to a positive outcome, and assign a small reward for those actions, even if they are not inherent in the environment.
+
+\subsection{Example: VizDoom}
+
+VizDoom is a adaptation of the classic 1996 video game \textit{Doom} for use as a RL research environment~\cite{kempka_vizdoom_2016}. \textit{Doom} is a first-person shooter game where the player must navigate through a maze and defeat enemies. The game is highly complex, but rewards are sparse, as the player only receives a reward when they beat the level. Therefore, researchers introduce additional rewards for picking up medkits, killing enemies, and even just surviving and moving around.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/doom.png}
+    \caption{Reprinted from~\cite{kempka_vizdoom_2016}.}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Curiosity}
+\textbf{Curiosity} is a form of intristic reward that incentivizes the agent to explore its environment and to encounter novel states. The idea behind curiosity is that increasing the seen state space of the agent will allow it learn a better policy, as it has a more complete understanding of the environment. When there are sparse extrinsic rewards, or even a complete absence of extrinsic rewards, curiosity can be effective for training an agent in such environments~\cite{pathak_curiosity-driven_2017}. This idea finds applications where the environment is not well defined and lacking of any obvious reward structure.
+
+maybe put fig here?
+
+\section{Imitation Learning}
+In cases where an optimal or desired behavior is known, such as in the case of human demonstrations, it may be more efficient to train a model to imitate the behavior from an expert rather than learning from scratch. This is called \textbf{imitation learning}. Immitation learning is a form of supervised learning, where the model is trained on a dataset of demonstrations.
+
 \textbf{Behavior cloning (BC)} is a form of imitation learning, where the policy network $\pi(a|s)$ simply learns from state-action pairs $(s, a)$ from expert demonstrations. This technique is very straightforward to implement but it is also very limited. For example, mismatches may occur when the learned policy is placed in an unfamiliar environment that was never reached by the expert. A simple analogy, is learning how to play soccer by watching Messi. You are not Messi. Messi will never make basic mistakes, but you will, and you will not know what to do in those situations.
 
 \subsection{more methods look into them}
