@@ -472,7 +472,7 @@ Substituting these terms into the equations, we have
 wow this is really complicated to explain with math will come back later
 
 \section{Overfitting}\label{sec:overfitting}
-\textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible.
+\textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible. Sometimes, there may be a fundamental difference between the training data and the test data that prevents any progress from being made. In general, we call problems of this nature \textbf{mismatches}, \textbf{distribution shifts}, or \textbf{dataset shifts}.
 
 Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
 
@@ -785,6 +785,10 @@ Note the following relationship between the two functions,
     V_\pi(s) = \sum_a \pi(a | s) Q_\pi(s, a).
 \end{equation}
 
+\subsubsection{Bellman Equation}
+
+\subsubsection{Learning Policies}
+
 \section{Policy Gradient}
 \textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the expected return $J_\pi$. This is typically accomplished by parameterizing the policy $\pi$ with $\boldsymbol{\theta}$ and then using gradient descent/ascent to optimize $J_\pi$ with respect to $\boldsymbol{\theta}$. Note that this is exactly the same as the optimization problem we have discussed in the previous chapter. In fact, in DRL, the parameters of the policy \textit{are precisely} the parameters of its neural network.
 
@@ -826,10 +830,42 @@ Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which m
 \cite{schulman_proximal_2017}
 
 \section{Actor-Critic Methods}
+In contrast to policy gradient methods, \textbf{actor-critic} methods learns the state-value function $V_\pi$ directly. We define a \textbf{critic} as a seperate entity from the the agent, which also may be a neural network.
+
+\subsection{Advantage Actor-Critic (A2C)}
+
 
 \section{Q-Learning}
 
 \section{Reward Shaping}
+
+Some environments have very sparse rewards, such as playing chess or go, where the agent only receives a definitive reward at the end of the game based on whether it wins or loses. This is a problem for learning, as the agent have trouble associating the actions it took during the game with the final reward. This is an example of the \textbf{credit assignment problem}, which is the fundamental reason why RL is so difficult.
+
+Thus, we may define additional rewards to guide the agent, by \textbf{reward shaping}. By applying domain knowledge, we can notice that certain actions are more likely to lead to a positive outcome, and assign a small reward for those actions, even if they are not inherent in the environment.
+
+\subsection{Example: VizDoom}
+
+VizDoom is a adaptation of the classic 1996 video game \textit{Doom} for use as a RL research environment~\cite{kempka_vizdoom_2016}. \textit{Doom} is a first-person shooter game where the player must navigate through a maze and defeat enemies. The game is highly complex, but rewards are sparse, as the player only receives a reward when they beat the level. Therefore, researchers introduce additional rewards for picking up medkits, killing enemies, and even just surviving and moving around.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/doom.png}
+    \caption{Reprinted from~\cite{kempka_vizdoom_2016}.}
+    \label{fig:enter-label}
+\end{figure}
+
+\subsection{Curiosity}
+\textbf{Curiosity} is a form of intristic reward that incentivizes the agent to explore its environment and to encounter novel states. The idea behind curiosity is that increasing the seen state space of the agent will allow it learn a better policy, as it has a more complete understanding of the environment. When there are sparse extrinsic rewards, or even a complete absence of extrinsic rewards, curiosity can be effective for training an agent in such environments~\cite{pathak_curiosity-driven_2017}. This idea finds applications where the environment is not well defined and lacking of any obvious reward structure.
+
+maybe put fig here?
+
+\section{Imitation Learning}
+In cases where an optimal or desired behavior is known, such as in the case of human demonstrations, it may be more efficient to train a model to imitate the behavior from an expert rather than learning from scratch. This is called \textbf{imitation learning}. Immitation learning is a form of supervised learning, where the model is trained on a dataset of demonstrations.
+
+\subsection{Behavior Cloning (BC)}
+\textbf{Behavior cloning (BC)} is a form of imitation learning, where the policy network $\pi(a|s)$ simply learns from state-action pairs $(s, a)$ from expert demonstrations. This technique is very straightforward to implement but it is also very limited. For example, mismatches may occur when the learned policy is placed in an unfamiliar environment that was never reached by the expert. A simple analogy, is learning how to play soccer by watching Messi. You are not Messi. Messi will never make basic mistakes, but you will, and you will not know what to do in those situations.
+
+\subsection{more methods look into them}
 
 \section{Inverse Reinforcement Learning (IRL)}
 
