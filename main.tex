@@ -298,9 +298,9 @@ The \textbf{learning rate}, $\eta$, determines the scaling for the size of each 
 \begin{algorithm}
     \caption{Naive gradient descent with leraning rate $\eta$ over N iterations.}\label{alg:naive-gd}
     \begin{algorithmic}[1]
-        \State initialize parameters $\boldsymbol{\theta}$
+        \State Initialize parameters $\boldsymbol{\theta}$
         \For{$i = 1, \ldots, N$}
-            \State compute gradient of loss $\nabla L(\boldsymbol{\theta})$ over the dataset
+            \State Compute gradient of loss $\nabla L(\boldsymbol{\theta})$ over the dataset
             \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla L(\boldsymbol{\theta})$
         \EndFor \\
         \Return $\boldsymbol{\theta}$
@@ -522,11 +522,11 @@ Rather than computing the gradient of the loss function over the entire training
 \begin{algorithm}
     \caption{Stochastic gradient descent with learning rate $\eta$ over N epochs.}\label{alg:sgd}
     \begin{algorithmic}[1]
-        \State initialize parameters $\boldsymbol{\theta}$
+        \State Initialize parameters $\boldsymbol{\theta}$
         \For{$i = 1, \ldots, N$}
-            \State shuffle dataset
+            \State Shuffle dataset
             \ForAll{example $\mathbf{x}$ in dataset}
-                \State compute gradient of loss $\nabla L_\mathbf{x}(\boldsymbol{\theta})$ with respect to $\mathbf{x}$
+                \State Compute gradient of loss $\nabla L_\mathbf{x}(\boldsymbol{\theta})$ with respect to $\mathbf{x}$
                 \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla L_x(\boldsymbol{\theta})$
             \EndFor
         \EndFor \\
@@ -567,11 +567,11 @@ In effect, every movement is actually a weighted sum of all previous gradients, 
 \end{equation}
 
 \subsubsection{Nesterov Momentum}
-Russian mathematician Yurii Nesterov improved on the standard momentum method by instead computing the gradient \textit{after} first applying the intertial term.
+In 1983, Russian mathematician Yurii Nesterov intrdouced a variant of momentum gradient descent by instead computing the gradient \textit{after} first applying the intertial term~\cite{nesterov_method_1983}.
 \begin{equation}
     \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)}).
 \end{equation}
-This ``look-ahead'' method allows the algorithm to be more responsive to the current gradient, and it is usually more effective than standard momentum. As such, Nesterov momentum is usually the default momentum implementation in software.
+This ``look-ahead'' method, usually called \textbf{Nesterov accelerated gradient (NAG)} or \textbf{Nesterov momentum}, allows the algorithm to be more responsive to the current gradient, and it is usually more effective than standard momentum. As such, Nesterov momentum is usually the default momentum implementation in software.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/nesterov_comparison.png}
@@ -753,7 +753,7 @@ Formally, an MDP is defined by a tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{figs/mdp.png}
-    \caption{Reprinted from \cite{silver_lecture_nodate}. Gotta make one of my own lol.}
+    \caption{Reprinted from \cite{silver_lectures_2015}. Gotta make one of my own lol.}
     \label{fig:enter-label}
 \end{figure}
 
@@ -763,6 +763,8 @@ An \textbf{episode} is a single session of the agent in the environment, startin
 \begin{equation}
     \tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_T, a_T, r_T)
 \end{equation}
+
+A set of trajectories experienced by an agent may be collectively considered as $\mathcal{D}$ in notation. Typically, $\mathcal{D}$ is the training data used for optimizing the agent.
 
 \subsection{Policies}
 
@@ -809,9 +811,10 @@ Note the following relationship between the two functions,
 
 \subsubsection{Bellman Equation}
 
-
-
 \subsubsection{Learning Policies}
+
+\subsection{Continuous State and Action Spaces}
+Up to this point, our notation has been limited to discrete state and action spaces. It is important to take note that for many applications $\mathcal{S}$ and $\mathcal{A}$ may be continuous spaces, such as the position and velocity of a robot arm, or the torque to apply to a joint. It is rather easy in most cases to extend the concepts that we have discussed to the continuous case: replacing sums with integral, probabilities with probability density functions, and so on. So, we will not go into much detail here about the specific nuances between discrete and continuous domains, just keep in mind that there may be some abuses of notation here and there.
 
 \section{Policy Gradient}
 \textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the expected return $J_\pi$. This is typically accomplished by parameterizing the policy $\pi$ with $\boldsymbol{\theta}$ and then using gradient descent/ascent to optimize $J_\pi$ with respect to $\boldsymbol{\theta}$. Note that this is exactly the same as the optimization problem we have discussed in the previous chapter. In fact, in DRL, the parameters of the policy \textit{are precisely} the parameters of its neural network.
@@ -819,8 +822,9 @@ Note the following relationship between the two functions,
 \subsection{Policy Gradient Theorem}
 The \textbf{policy gradient theorem} (see proof in Appendix~\ref{sec:policy-gradient-theorem-proof}) states that the gradient of $J_\pi$ with respect to the parameters $\boldsymbol{\theta}$ can be expressed as
 \begin{equation}\label{eq:policy-gradient-theorem}
-    \nabla_{\boldsymbol{\theta}} J_\pi =  \mathbb{E}_\pi\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right].
+    \nabla_{\boldsymbol{\theta}} J_\pi =  \mathbb{E}_\pi\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right],
 \end{equation}
+where the summation represents all pairs of $(s_t, a_t)$ in a trajectory.
 This is a important result, as it allows us to compute the gradient of $J_\pi$, and thus optimizing $\boldsymbol{\theta}$, without having to compute the state-value function $V_\pi$. Inaddition, policy gradient methods are \textbf{model-free} methods, as they do not require any knowledge of the environment, its associated value functions or the transition function. The theorem only presupposes that $\pi_{\boldsymbol{\theta}}$ is differentiable, which is a reasonable assumption for almost all neural networks.
 
 In practice, the right-hand side of the equation is estimated by sampling trajectories from the environment in a Monte Carlo fashion, and then computing the average over all sampled trajectories.
@@ -830,13 +834,13 @@ In practice, the right-hand side of the equation is estimated by sampling trajec
 
 \subsection{\texttt{REINFORCE}}
 
-In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, which uses an even simpler version of the policy gradient theorem.~\cite{williams_simple_1992}
+In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, which uses an even simpler version of the policy gradient theorem in combination with sampling trajectories in a Monte Carlo manner.~\cite{williams_simple_1992}
 \begin{algorithm}
     \caption{\texttt{REINFORCE} with policy $\pi_{\boldsymbol{\theta}}$, learning rate $\eta$, and $N$ episodes.}\label{alg:REINFORCE}
     \begin{algorithmic}[1]
-        \State initialize parameters $\boldsymbol{\theta}$
+        \State Initialize parameters $\boldsymbol{\theta}$
         \For{$i = 1, \ldots, N$}
-            \State play episode $i$
+            \State Play episode $i$
             \State $\tau^{(i)} \leftarrow (s_0^{(i)}, a_0^{(i)}, r_0^{(i)}, \ldots, s_T^{(i)}, a_T^{(i)}, r_T^{(i)})$
             \For{$t = 0, \ldots, T$}
                 \State $G_t^{(i)} \leftarrow \sum_{k=0}^{T} \gamma^k r_{t+k}^{(i)}$
@@ -848,6 +852,9 @@ In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, w
     \end{algorithmic}
 \end{algorithm}
 Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which means that all the the optimization techniques that we have discussed in Section~\ref{sec:gradient-descent-methods} can be applied here, up to a difference in sign.
+
+\subsection{Trust Region Policy Optimization (TRPO)}
+\cite{schulman_trust_2015}
 
 
 \subsection{Proximal Policy Optimization (PPO)}
@@ -890,6 +897,7 @@ In cases where an optimal or desired behavior is known, such as in the case of h
 
 \subsection{Inverse Reinforcement Learning (IRL)}
 In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} is a form of imitation learning where the model learns a reward function (usually in the form of a neural network) from expert demonstrations, rather than the expert policy. The learned reward function can then be used to train a from-scratch agent using standard RL methods.
+\cite{arora_survey_2021}
 
 \chapter{Robotic Systems and Control}
 
@@ -897,6 +905,8 @@ In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} i
 Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration.
 
 Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to walk and navigate rather than using previous traditional pathfinding and trajectory optimization methods.
+
+\cite{hutter_anymal_2016}
 
 \begin{figure}[h]
     \centering
