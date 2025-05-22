@@ -41,7 +41,7 @@
 \newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
 
 % figures
-\usepackage{graphicx, subfig}
+\usepackage{graphicx, subcaption}
 \usepackage{array, booktabs}
 \usepackage{algorithm, algpseudocode}
 
@@ -49,7 +49,7 @@
 \usepackage[labelfont=bf, font={small,sf}]{caption}
 
 \usepackage{tikz, circuitikz}
-\usetikzlibrary{positioning}
+\usetikzlibrary{positioning, shapes}
 
 % style
 \usepackage{url}
@@ -323,7 +323,7 @@ When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the update
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.3\linewidth]{figs/colored_neural_network.png}
+    \includegraphics[width=0.5\linewidth]{figs/colored_neural_network.png}
     \caption{A schematic of a neural network with a input layer with three nodes, one hidden layer with four nodes, and an output layer with two nodes~\cite{commons_filecolored_2025}.}
     \label{fig:enter-label}
 \end{figure}
@@ -344,11 +344,17 @@ In this article, we will use the notation $a^{(l)}_i$ to refer to the output of 
 
 For virtually all non-trivial problems, linear relationships are far too reductive to completely capture the complexity of the task at hand. Therefore, a variety of non-linear \textbf{activation functions} are applied at each node to eliminate this kind of model bias to allow the model to learn more non-linear relationships.
 
-\textbf{Sigmoid functions} are ubiquitous in this role, and they are also useful since they normalize the output of a node to be between $0$ and $1$. This is useful for many applications, such as when the output of a node is interpreted as a probability.
+\textbf{Sigmoid functions} are ubiquitous in this role, and they are also useful since they normalize the output of a node to be between $0$ and $1$. This is useful for many applications, such as when the output of a node is interpreted as a probability. Sigmoid functions are any function that have an S-shaped curve with horizontal asymptotes as $x \rightarrow \pm \infty$. The most common sigmoid function is the logistic function, which is defined as
 \begin{equation}
-    \sigma(x) = \frac{1}{1+e^{-x}}
+    \sigma(x) = \frac{1}{1+e^{-x}}.
 \end{equation}
-Another very common activation function is the \textbf{\gls{relu}}, which has the advantage of being computationally easier to calculate.
+In literature, one might also other variants of the sigmoid function, such as the hyperbolic tangent,
+\begin{equation}
+    \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}.
+\end{equation}
+For the purposes of this article, the differences between these sigmoid functions are subtle at most, and so we will just use $\sigma$ to denote any sigmoid function.
+
+Another ubiquitous activation function is the \textbf{\gls{relu}}, which has the advantage of being computationally easier to calculate, but it is not differentiable at $0$.
 \begin{equation}
     \text{ReLU}(x) = \max(0,x)
 \end{equation}
@@ -360,6 +366,33 @@ Another very common activation function is the \textbf{\gls{relu}}, which has th
     \label{fig:enter-label}
 \end{figure}
 
+Some other common activation functions are listed in the table below.
+\begin{table}[h]
+    \centering
+    \caption{Common activation functions~\cite{apicella_survey_2021, nwankpa_activation_2018, dubey_activation_2022}.}
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Name} & \textbf{Equation} & \textbf{Range} & \textbf{Smoothness} \\ \hline
+        Logistic & $\sigma(x) = \frac{1}{1+e^{-x}}$ & $(0, 1)$ &$C^\infty$ \\
+        Hyperbolic tangent & $\tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$ & $(-1,1)$ & $C^\infty$ \\
+        Heaviside & $H(x) = \begin{cases}
+            0 & x < 0 \\
+            1 & x \geq 0
+        \end{cases}$ & $\{0, 1\}$ & $C^{-1}$ \\
+        ReLU & $\text{ReLU}(x) = \max(0,x)$ & $[0, +\infty)$ & $C^0$ \\
+        Leaky ReLU & $\text{LReLU}(x) = \begin{cases}
+            x & x > 0 \\
+            \alpha x & x \leq 0
+        \end{cases}$ & $(-\infty, +\infty)$ & $C^0$ \\
+        Softplus & $\text{softplus}(x) = \ln(1+e^x)$ & $(0, +\infty)$ & $C^\infty$ \\
+        Softsign & $\text{softsign}(x) = \frac{x}{1+|x|}$ & $(-\infty, +\infty)$ & $C^\infty$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+A thorough catalog of all commonly used activation functions in the literature and comparisions of their advantages and disadvantages is beyond the scope of this article. The author recommends the following articles:~\cite{apicella_survey_2021, dubey_activation_2022}.
+
+\subsubsection{Universal Approximation Theorem}
 Any continuous relationship between two variables can be approximated by a \textit{sufficiently large} linear combination of sigmoid functions~\cite{cybenko_approximation_1989}.
 \begin{equation} \label{eq:approximation}
     f \approx b + \mathbf{c} \cdot \sigma(\mathbf{b} + \mathbf{W}\mathbf{x}).
@@ -487,9 +520,22 @@ Cross-validation can be exhaustive where every possible partition is evaluated (
 \subsubsection{$k$-fold cross-validation}
 The most common variant of cross-validation is $k$-fold cross-validation, a non-exhaustive method that randomly partitions the training data into $k$ equally sized subsets called \textbf{folds}.
 
+\begin{algorithm}
+    \caption{$k$-fold cross-validation.}\label{alg:k-fold}
+    \begin{algorithmic}[1]
+        \State Shuffle dataset $\mathcal{S}$
+        \State Partition $\mathcal{S}$ into $k$ folds $f_1, \ldots, f_k$
+        \For{$i = 1, \ldots, k$}
+            \State Train model on $\mathcal{S} \setminus f_i$
+            \State Evaluate model on $f_i$
+        \EndFor
+        \Return average performance over all $k$ folds
+    \end{algorithmic}
+\end{algorithm}
+
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{figs/kfold_cross_validation.png}
+    \includegraphics[width=0.7\linewidth]{figs/kfold_cross_validation.png}
     \caption{\cite{commons_filek-fold_2024}}
     \label{fig:enter-label}
 \end{figure}
@@ -524,8 +570,8 @@ Rather than computing the gradient of the loss function over the entire training
     \begin{algorithmic}[1]
         \State Initialize parameters $\boldsymbol{\theta}$
         \For{$i = 1, \ldots, N$}
-            \State Shuffle dataset
-            \ForAll{example $\mathbf{x}$ in dataset}
+            \State Shuffle dataset $\mathcal{S}$
+            \ForAll{example $\mathbf{x} \in \mathcal{S}$}
                 \State Compute gradient of loss $\nabla L_\mathbf{x}(\boldsymbol{\theta})$ with respect to $\mathbf{x}$
                 \State $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} - \eta \nabla L_x(\boldsymbol{\theta})$
             \EndFor
@@ -557,7 +603,7 @@ Define the change in parameters for an update as $\mathbf{v}$, with $\mathbf{v}^
 \end{equation}
 where $\gamma$ is a hyperparameter that determines the weight to which the previous movement is factored into the current movement. The parameters are then updated as
 \begin{equation}
-    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{v}^{(t)}.
+    \boldsymbol{\theta}^{(t+1)} = \boldsymbol{\theta}^{(t)} + \mathbf{v}^{(t)} = \boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)}).
 \end{equation}
 Note that gradient descent without momentum is just a special case of this, where $\gamma = 0$.
 
@@ -571,6 +617,32 @@ In 1983, Russian mathematician Yurii Nesterov intrdouced a variant of momentum g
 \begin{equation}
     \mathbf{v}^{(t)} = \gamma \mathbf{v}^{(t-1)} - \eta \nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)}).
 \end{equation}
+
+\begin{figure}[h] % tikz drawing for comparison
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \begin{tikzpicture}
+            \filldraw[black] (0,0) circle (2pt) node[anchor=east] {$\boldsymbol{\theta}^{(t)}$}; % current position
+            \draw[red, thick, ->] (0,0) -- (4, 2) node[midway, below right] {$-\nabla L(\boldsymbol{\theta}^{(t)})$}; % gradient
+            \draw[blue, dotted, thick, ->] (0,0) -- (1, 2) node[midway, above left] {$\gamma \mathbf{v}^{(t-1)}$}; % momentum
+            \draw[blue, thick, ->] (4, 2) -- (5, 4);
+            \draw[black, thick, ->] (0, 0) -- (5, 4) node[midway, above left] {$\mathbf{v}^{(t)}$}; % total movement
+            \filldraw[black] (5,4) circle (2pt) node[anchor=west] {$\boldsymbol{\theta}^{(t+1)}$}; % new position
+        \end{tikzpicture}
+        \caption{Standard momentum.}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.51\textwidth}
+        \begin{tikzpicture}
+            \filldraw[black] (0,0) circle (2pt) node[anchor=east] {$\boldsymbol{\theta}^{(t)}$}; % current position
+            \draw[blue, thick, ->] (0,0) -- (1, 2) node[midway, above left] {$\gamma \mathbf{v}^{(t-1)}$}; % Nesterov omentum
+            \draw[red, thick, ->] (1, 2) --(6, 4) node[midway, above left] {$-\nabla L(\boldsymbol{\theta}^{(t)} + \gamma \mathbf{v}^{(t-1)})$}; % gradient
+            \draw[black, thick, ->] (0, 0) -- (6, 4) node[midway, below right] {$\mathbf{v}^{(t)}$}; % total movement
+            \filldraw[black] (6,4) circle (2pt) node[anchor=west] {$\boldsymbol{\theta}^{(t+1)}$}; % new position
+        \end{tikzpicture}
+        \caption{Nesterov momentum.}
+    \end{subfigure}
+    \caption{Visual representation of (a) standard momentum and (b) Nesterov momentum algorithms. The blue vector is the previous movement, the red vector is the gradient, and the black vector is the total movement.}
+\end{figure}
 This ``look-ahead'' method, usually called \textbf{Nesterov accelerated gradient (NAG)} or \textbf{Nesterov momentum}, allows the algorithm to be more responsive to the current gradient, and it is usually more effective than standard momentum. As such, Nesterov momentum is usually the default momentum implementation in software.
 \begin{figure}[h]
     \centering
@@ -723,15 +795,20 @@ The framework of \textbf{reinforcement learning (RL)} is a class of ML technique
     \label{fig:enter-label}
 \end{figure}
 
-\begin{tikzpicture}
-    \node (agent) [draw, rectangle, minimum width=2cm, minimum height=1cm] {Agent};
-    \node (env) [draw, rectangle, minimum width=2cm, minimum height=1cm, right=of agent] {Environment};
+put tikz figure here
 
-    \draw[->] (agent.east) -- node[above] {action} (env.west);
-    \draw[->] (env.east) -- node[above] {observation} (agent.west);
-    \draw[->] (env.south) -- node[below] {reward} (agent.north);
-\end{tikzpicture}
+% \begin{tikzpicture}
+%     % environment -> agent (state)
+%     % agent -> environment (action)
+%     % environment -> agent (reward)
 
+%     \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (env) at (0,5) {Environment};
+%     \node[draw, rectangle, minimum width=2cm, minimum height=1cm] (agent) at (0,0) {Agent};
+
+%     \draw[->] (env) -- (10,5) -- (10,0) -- (agent) node[midway, right] {State};
+%     \draw[->] (agent) -- (-10,0) -- (-10,5) -- (env) node[midway, left] {Action};
+%     \draw[->] (env) -- (agent) node[midway, right] {Reward};
+% \end{tikzpicture}
 
 In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a reward.
 
@@ -748,14 +825,14 @@ Formally, an MDP is defined by a tuple $(\mathcal{S}, \mathcal{A}, P, R, \gamma)
     \item $\gamma \in [0,1]$, the \textbf{discount factor}, is a hyperparameter that determines how much the agent should care about future rewards.
 \end{itemize}
 
-
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{figs/mdp.png}
     \caption{Reprinted from \cite{silver_lectures_2015}. Gotta make one of my own lol.}
     \label{fig:enter-label}
 \end{figure}
+
+put tikz figure here
 
 \subsection{Episodes and Trajectories}
 An \textbf{episode} is a single session of the agent in the environment, starting from an initial state $s_0$ and ending when the agent reaches a terminal state $s_T$. The agent interacts with the environment by taking actions $a_t$ and receiving rewards $r_t$ at each time step $t$ according to $\mathcal{R}$. The specific sequence of states, actions, and rewards that the agent experiences during an episode is called a \textbf{trajectory}.
@@ -893,31 +970,56 @@ In cases where an optimal or desired behavior is known, such as in the case of h
 
 \textbf{Behavior cloning (BC)} is a form of imitation learning, where the policy network $\pi(a|s)$ simply learns from state-action pairs $(s, a)$ from expert demonstrations. This technique is very straightforward to implement but it is also very limited. For example, mismatches may occur when the learned policy is placed in an unfamiliar environment that was never reached by the expert. A simple analogy, is learning how to play soccer by watching Messi. You are not Messi. Messi will never make basic mistakes, but you will, and you will not know what to do in those situations.
 
+put tikz figure here
+
 \subsection{more methods look into them}
 
 \subsection{Inverse Reinforcement Learning (IRL)}
 In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} is a form of imitation learning where the model learns a reward function (usually in the form of a neural network) from expert demonstrations, rather than the expert policy. The learned reward function can then be used to train a from-scratch agent using standard RL methods.
+
+put tikz figure here
+
 \cite{arora_survey_2021}
 
-\chapter{Robotic Systems and Control}
+\chapter{Applications of RL in Robotics Literature}
 
-\section{Hutter, Lee, Hwangbo et al.\ and the ANYmal by ANYbotics}
-Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration.
+\section{Locomotion of Legged Robots}
+Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016}.
 
-Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to walk and navigate rather than using previous traditional pathfinding and trajectory optimization methods.
+Traditional methods for locomotion and navigation of legged robots are often based on trajectory optimization and pathfinding. These methods are often computationally expensive and require a lot of tuning to work well in practice. In addition, they are often not robust to changes in the environment, such as obstacles or changes in terrain.
 
-\cite{hutter_anymal_2016}
+% make table to compare
+\begin{table}[h]
+    \centering
+    \caption{Comparison of methods for locomotion and navigation of legged robots.}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Aspect} & \textbf{Traditional Methods} & \textbf{Data-Driven RL} \\
+        \hline
+        Real-time Computational Demand & High & Low \\
+        Training Computational Demand & None & Very High \\
+        Human Labor Demand & High & Low \\
+        Robustness to Environment Changes & Low & High \\
+        \hline
+    \end{tabular}
+    \label{tab:methods}
+\end{table}
+
+Using TRPO, Hwangbo et al.\ trained a policy to control the ANYmal in a variety of locomotion tasks~\cite{hwangbo_learning_2019}. Figure~\ref{fig:anymal-RL} shows an overview of the training process. Because of the infeasibility of training a a policy on a physical robot, the authors trained the policy in a simulated environment, and then transferred the policy to the real robot.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/anymal_RL.png}
     \caption{Repreinted from~\cite{hwangbo_learning_2019}.}
-    \label{fig:enter-label}
+    \label{fig:anymal-RL}
 \end{figure}
+
+With RL, the authors were able to achieve state-of-the-art performance in a variety of locomotion tasks, including walking and fall recovery. Compared to previous non-Rl methods. The learned policy matched commanded velocitiies with greater accuracy, were more energy efficient, and exerted less stress on the robot's joints. In addtion, the learned policy was able to achieve a significantly higher top speed, without comprimising gait stability.
+
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\linewidth]{figs/anymal_detailed.png}
+    \includegraphics[width=\linewidth]{figs/anymal_detailed.png}
     \caption{Reprinted from~\cite{hwangbo_learning_2019}.}
     \label{fig:enter-label}
 \end{figure}
@@ -939,7 +1041,7 @@ Using deep reinforcement learning, Marco Hutter et al.\ trained the ANYmal to wa
 \cite{hutter_legged_2022}
 \cite{lee_learning_2020}
 
-\section{Luo et al.\ and Exoskeletons}
+\section{Exoskeletons}
 \cite{luo_reinforcement_2021}
 \cite{luo_experiment-free_2024}
 
