@@ -41,7 +41,7 @@
 \newcommand{\ndiv}{\not\hspace{2.5pt}\mid}
 
 % figures
-\usepackage{graphicx, subcaption}
+\usepackage{graphicx, subcaption} % probably sort out vector figures?
 \usepackage{array, booktabs}
 \usepackage{algorithm, algpseudocode}
 
@@ -319,7 +319,7 @@ When $\boldsymbol{\theta}$ reaches a critical point ($\nabla L = 0$), the update
 
 \section{Neural Networks (NNs)}\label{sec:nn}
 
-\textbf{\Glspl{ann}} often shortened to \textbf{\glspl{nn}}, are one of the largest classes of models used in machine learning. NNs are composed of \textbf{\glspl{node}} that are arranged in layers. The first layer is called the \textbf{input layer}, and the last layer is called the \textbf{output layer}. All layers in between are called \textbf{hidden layers}. NNs are usually fully connected, meaning that each node in a layer is considered by every node in the next layer.
+\textbf{\Glspl{ann}} often shortened to \textbf{\glspl{nn}}, are one of the largest classes of models used in machine learning. NNs are composed of \textbf{\glspl{node}} that are arranged in layers. The first layer is called the \textbf{input layer}, and the last layer is called the \textbf{output layer}. All layers in between are called \textbf{hidden layers}. Neural networks are usually fully connected, meaning that each node in a layer is considered by every node in the next layer. Such fully-connected networks are often called \textbf{multi-layer perceptrons} (MLPs).
 
 \begin{figure}[h]
     \centering
@@ -352,9 +352,9 @@ In literature, one might also other variants of the sigmoid function, such as th
 \begin{equation}
     \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}.
 \end{equation}
-For the purposes of this article, the differences between these sigmoid functions are subtle at most, and so we will just use $\sigma$ to denote any sigmoid function.
+For the purposes of this article, the differences between these sigmoid functions are subtle at most, and so we will just use $\sigma$ to denote a generic sigmoid function.
 
-Another ubiquitous activation function is the \textbf{\gls{relu}}, which has the advantage of being computationally easier to calculate, but it is not differentiable at $0$.
+Another ubiquitous activation function is the \textbf{\gls{relu}}.
 \begin{equation}
     \text{ReLU}(x) = \max(0,x)
 \end{equation}
@@ -365,6 +365,8 @@ Another ubiquitous activation function is the \textbf{\gls{relu}}, which has the
     \caption{Plot of $\sigma(x)$ (left) and $\text{ReLU}(x)$ (right). (Original)}
     \label{fig:enter-label}
 \end{figure}
+
+ReLUs have the advantage of being computationally easier to calculate, though they are not differentiable at $0$ which can introduce complexity during optimization. ReLUs are also unbounded in range and are not constrained by asymptotes. This may be a disadvantage, but not necessarily so. In general, the choice of activation function may be tuned to a specific problem, and there is no one-size-fits-all solution.
 
 Some other common activation functions are listed in the table below.
 \begin{table}[h]
@@ -380,17 +382,13 @@ Some other common activation functions are listed in the table below.
             1 & x \geq 0
         \end{cases}$ & $\{0, 1\}$ & $C^{-1}$ \\
         ReLU & $\text{ReLU}(x) = \max(0,x)$ & $[0, +\infty)$ & $C^0$ \\
-        Leaky ReLU & $\text{LReLU}(x) = \begin{cases}
-            x & x > 0 \\
-            \alpha x & x \leq 0
-        \end{cases}$ & $(-\infty, +\infty)$ & $C^0$ \\
         Softplus & $\text{softplus}(x) = \ln(1+e^x)$ & $(0, +\infty)$ & $C^\infty$ \\
         Softsign & $\text{softsign}(x) = \frac{x}{1+|x|}$ & $(-\infty, +\infty)$ & $C^\infty$ \\
         \hline
     \end{tabular}
 \end{table}
 
-A thorough catalog of all commonly used activation functions in the literature and comparisions of their advantages and disadvantages is beyond the scope of this article. The author recommends the following articles:~\cite{apicella_survey_2021, dubey_activation_2022}.
+A thorough catalog of all commonly used activation functions in the literature and comparisions of their properties, advantages, and disadvantages is beyond the scope of this article. The author recommends the following articles:~\cite{apicella_survey_2021, dubey_activation_2022}.
 
 \subsubsection{Universal Approximation Theorem}
 Any continuous relationship between two variables can be approximated by a \textit{sufficiently large} linear combination of sigmoid functions~\cite{cybenko_approximation_1989}.
@@ -412,6 +410,8 @@ This result can be generalized to any non-polynomial activation function, includ
 The addition of layers to a model increases its complexity, the number of which is referred to as its \textbf{depth}. The number of nodes in a layer is referred to as the layer's \textbf{width}. The width and depth of a model are hyperparameters, and there is a balance to be made between model bias, computational demands, and overfitting, a phenomenon we will discuss in Section~\ref{sec:overfitting}.
 
 The output layer of a model is tailored to the task at hand. A \textbf{regression} model predicts a single, continuous value, represented by a single node in the output layer, or a vector of continuous values, represented by multiple nodes in the output layer. In contrast, a \textbf{classification} model sorts inputs into discrete categories, usually with the final output layer being a vector of nodes, each representing a class, with the value of each node representing the probability that the input belongs to that class. The specific differences between these two types of models will be discussed in Section~\ref{sec:classification}.
+
+\subsection{Example: MNIST}
 
 \section{Backpropagation}
 
@@ -641,7 +641,7 @@ In 1983, Russian mathematician Yurii Nesterov intrdouced a variant of momentum g
         \end{tikzpicture}
         \caption{Nesterov momentum.}
     \end{subfigure}
-    \caption{Visual representation of (a) standard momentum and (b) Nesterov momentum algorithms. The blue vector is the previous movement, the red vector is the gradient, and the black vector is the total movement.}
+    \caption{Visual representation of (a) standard momentum and (b) Nesterov momentum algorithms. The blue vector is the previous movement, the red vector is the gradient, and the black vector is the total movement. (Original)}
 \end{figure}
 This ``look-ahead'' method, usually called \textbf{Nesterov accelerated gradient (NAG)} or \textbf{Nesterov momentum}, allows the algorithm to be more responsive to the current gradient, and it is usually more effective than standard momentum. As such, Nesterov momentum is usually the default momentum implementation in software.
 \begin{figure}[h]
@@ -783,7 +783,14 @@ Note that $\ln y'_i$ is always negative because $y'$ is the output of the softma
 
 Cross entropy allso usually gives smoother loss surfaces compared to MSE for classification problems.
 
-\chapter{Reinforcement Learning} % make all of this chapter more mathmatically rigorous
+\section{Convolutional Neural Networks (CNNs)}
+\label{sec:cnn}
+
+\section{Recurrent Neural Networks (RNNs)}
+\label{sec:rnn}
+
+
+\chapter{Reinforcement Learning (RL)} % make all of this chapter more mathmatically rigorous
 So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human, which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
 
 The framework of \textbf{reinforcement learning (RL)} is a class of ML techniques that do not require labeled data, and thus are generally unsupervised. Instead, RL models learn by interacting with an environment, and receiving feedback in the form of rewards or penalties. The goal of an RL model is to learn a \textbf{policy} that maximizes the expected reward over time.
@@ -942,6 +949,8 @@ In contrast to policy gradient methods, \textbf{actor-critic} methods learns the
 
 \subsection{Advantage Actor-Critic (A2C)}
 
+\subsection{Asynchronous Advantage Actor-Critic (A3C)}
+
 \section{Q-Learning}
 
 \section{Reward Shaping}
@@ -982,11 +991,25 @@ put tikz figure here
 \cite{arora_survey_2021}
 
 \chapter{Applications of RL in Robotics Literature}
+Now that we have built up a solid foundation for the basics of reinforcement learning, we will now review examples of applications of RL in the field of robotics. This section is by no means extensive or comprehensive, it is only meant to serve as a tasting menu of the state of the art in the field. To acomplish this, we will approach a specific platform as a case study, and then review the literature on that platform. We will examine the methods used in the literature, and how they relate to the concepts we have discussed previously in this article.
 
 \section{Locomotion of Legged Robots}
-Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016}.
+Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016, hutter_legged_2022}.
+\begin{figure}[h]
+    \begin{subfigure}[b]{0.4\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/anymal.png}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.55\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figs/anymal_labeled.png}
+    \end{subfigure}
+    \caption{ANYmal quadrupedal robot. Reprinted from~\cite{hutter_anymal_2016}.}
+    \label{fig:anymal}
+\end{figure}
 
-Traditional methods for locomotion and navigation of legged robots are often based on trajectory optimization and pathfinding. These methods are often computationally expensive and require a lot of tuning to work well in practice. In addition, they are often not robust to changes in the environment, such as obstacles or changes in terrain.
+Traditional methods for locomotion and navigation of legged robots are often based on trajectory optimization and pathfinding. These methods are often computationally expensive and require a lot of tuning to work well in practice. In addition, they are often not robust to changes in the environment, such as obstacles or changes in terrain. One may think of the change in methods as frontloading the computational in a training environment.
 
 % make table to compare
 \begin{table}[h]
@@ -1014,15 +1037,25 @@ Using TRPO, Hwangbo et al.\ trained a policy to control the ANYmal in a variety 
     \label{fig:anymal-RL}
 \end{figure}
 
-With RL, the authors were able to achieve state-of-the-art performance in a variety of locomotion tasks, including walking and fall recovery. Compared to previous non-Rl methods. The learned policy matched commanded velocitiies with greater accuracy, were more energy efficient, and exerted less stress on the robot's joints. In addtion, the learned policy was able to achieve a significantly higher top speed, without comprimising gait stability.
-
+With RL, the authors were able to achieve state-of-the-art performance in a variety of locomotion tasks, including walking and fall recovery. Compared to previous non-RL methods. The learned policy matched commanded velocitiies with greater accuracy, were more energy efficient, and exerted less stress on the robot's joints. In addtion, the learned policy was able to achieve a significantly higher top speed, without comprimising gait stability.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{figs/anymal_detailed.png}
+    \includegraphics[width=0.7\linewidth]{figs/anymal_detailed.png}
     \caption{Reprinted from~\cite{hwangbo_learning_2019}.}
-    \label{fig:enter-label}
+    \label{fig:anymal-detailed}
 \end{figure}
+
+inverse kinematics???
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/anymal_range_of_motion.png}
+    \caption{Reprinted from~\cite{hutter_anymal_2016}.}
+    \label{fig:anymal-joint-range}
+\end{figure}
+
+In simulation, a different models with randomly sampled center of masses were used for training to account for potential differences in configuration in the real robot.
 
 \begin{figure}[h]
     \centering
