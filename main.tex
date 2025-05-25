@@ -403,9 +403,9 @@ Equation \ref{eq:approximation} is equivalent to a neural network with one hidde
     \label{fig:enter-label}
 \end{figure}
 
-This result can be generalized to any non-polynomial activation function, including ReLUs, in the \textbf{universal approximation theorems}, implying that neural networks that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. This property of neural networks become especially useful in other areas of machine learning where aribtrary function approximators are needed. Though, it is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal.
+This result can be generalized to any non-polynomial activation function, including ReLUs, in the \textbf{universal approximation theorems}, implying that neural networks that use such activation functions may theoretically learn any relationship given \textit{sufficiently large} amounts nodes and layers~\cite{hornik_multilayer_1989, kidger_universal_2020, pinkus_approximation_1999}. This property of neural networks become especially useful in other areas of machine learning where aribtrary function approximators are needed. Though, it is important to note that this result is only theoretical, and in practice, computational and data constraints usually frustrate this ideal. An informal proof of this theorem is given in~\cite{nielsen_neural_2019}.
 
-\subsection{Layers}
+\subsection{Multiple Layers}
 
 The addition of layers to a model increases its complexity, the number of which is referred to as its \textbf{depth}. The number of nodes in a layer is referred to as the layer's \textbf{width}. The width and depth of a model are hyperparameters, and there is a balance to be made between model bias, computational demands, and overfitting, a phenomenon we will discuss in Section~\ref{sec:overfitting}.
 
@@ -783,11 +783,80 @@ Note that $\ln y'_i$ is always negative because $y'$ is the output of the softma
 
 Cross entropy allso usually gives smoother loss surfaces compared to MSE for classification problems.
 
-\section{Convolutional Neural Networks (CNNs)}
-\label{sec:cnn}
+\section{Convolutional Neural Networks (CNNs)}\label{sec:cnn}
+Convolutional neural networks (CNNs) are a class of neural networks that are particularly well-suited for image processing tasks. Consider an image with dimensions of $w \times h$ and $c$ channels. This can be represented as a rank $3$ tensor $\mathbf{X} \in \mathbb{R}^{w \times h \times c}$, which will be the input to a neural network. If we use a fully connected neural network, the number of parameters in the first hidden layer will be enormous, as each node will be connected to every pixel (or even every channel) in the image. This is not only computationally expensive, but it also makes the model very prone to overfitting.
 
-\section{Recurrent Neural Networks (RNNs)}
-\label{sec:rnn}
+\cite{bishop_deep_2023} steal figures from this textbook its goated
+
+insert figure here
+
+CNNs are designed to take advantage of the structure of images, and other types of data that may be ``grid-like'' in nature.
+\subsection{Convolutional Layers}
+The main building block of a CNN is the \textbf{convolutional layer}, which applies a convolution operation to the input data. One may be familiar with the continuous definition of the convolution operation,
+\begin{equation}
+    (f * g)(t) = \int_{-\infty}^{\infty} f(\tau) g(t - \tau)\ d\tau.
+\end{equation}
+Note that the convolution is commutative, so $f * g = g * f$.
+
+In the discrete case, the convolution may be defined analogously as
+\begin{equation}
+    (f * g)(n) = \sum_{m=-\infty}^{\infty} f(m) g(n - m),
+\end{equation}
+where $f$ and $g$ are discrete functions or vectors.
+
+insert figure here
+
+This can be generalized to higher dimensions with $f$ and $g$ being matrices or tensors. Without loss of generality, we can visualize this as a sliding window, called a \textbf{receptive field}, that moves across $f$ and computes the inner product with $g$ at each position, and mapping the result to a new tensor $h = f * g$, called the \textbf{feature map}. $g$ is usually called a \textbf{kernel}, \textbf{filter}, \textbf{mask}, or a \textbf{template}~\cite{moon_general_2025}. The idea of this process is that a kernel may be able to detect certain patterns in the input data, such as edges, corners, or textures, and extract them into the feature map.
+
+insert figure here
+
+The size of the receptive field and the kernel is usually much smaller than the input data, and it is usually square for image processing tasks. The specific offset of the receptive field for each iteration of its movement is called the \textbf{stride} of the convolution. The stride is typically very small, such as $1$ or $2$, and it is usually isotropic. In addition, the input is padded with extra values around the edges such that the convolution is defined for all positions of the receptive field, including the edges. \textbf{Zero padding} is the most common method of padding, where the extra values are set to $0$, though other methods such as copying the edge values or using a constant value are also possible.
+
+insert figure here of padding
+
+Each kernel consists of individual parameters that may be learned. Thus, a convolutional layer with $k$ individual kernels will have $k$ individual feature maps. For an RGB image with dimensions $w \times h \times 3$, a typical kernel size is $3 \times 3 \times 3$, and the output feature map will have dimensions of $w \times h \times k$.
+
+Using the traditional visualization of a neural network, a convolutional layer consists of nodes that each correspond to a single kernel at single position of the receptive field. Each node is only connected to the values in the receptive field rather than the entire input layer with the weights being the parameters of the kernel, with different nodes \textit{sharing the same weights} if they use the same kernel. These two ways of thinking about a convolutional layer are fundamentally the same.
+\begin{table}[h]
+    \centering
+    \caption{Equivalent concepts between different visualizations of a convolutional layer. Adapted from~\cite{lee_convolutional_2021}.}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Tensors and Kernels} & \textbf{Network Nodes and Weights} \\
+        \hline
+        Input tensor & Input layer \\
+        Individual pixel or channel & Node \\
+        Kernel & Shared weights of nodes \\
+        Convolution & Weighted sum of connections \\
+        Kernel size & Number of connections to a node \\
+        Feature map & Output layer \\
+        \hline
+    \end{tabular}
+    \label{tab:cnn-architecture}
+\end{table}
+
+insert figure here
+
+\subsection{Activation Function Layers}
+Just like in a fully connected neural network, the output of a convolutional layer is usually passed through an activation function to introduce non-linearity into the model. By far the most common choice of activation function for CNNs is the ReLU\@.
+
+\subsection{Pooling Layers}
+\textbf{Pooling} is a technique used to reduce the size of feature maps in a CNN, a process called \textbf{downsampling}. Notice that scaling an image down to a smaler size does not fundamentally change the information in a image by much, we are still able to recognize the image, even if it is more pixelated. We can apply the same concept by taking a small region of the feature map applying some ``aggregate'' function to the values in that region to get a single value. This very similar to a convolutional layer, with the receptive field feeding to some scalar function rather than being convolved with a learned kernel. If we wish to ``tile'' the feature map with no overlap, we set the stride to be equal to the size of the receptive field.
+
+insert figure here
+
+The most common type of pooling is \textbf{max pooling}, where the maximum value in each receptive field is taken as the representative value. Other common operations may be taking the mean or the median.
+
+Pooling prevents feature maps from growing too large, which would be computationally expensive and introduce too many parameters. For example, a pooling layer with a $2 \times 2$ receptive field and a stride of $2$ will reduce the size of a $100 \times 100$ feature map to $50 \times 50$, decreasing the number of parameters for the next layer by a factor of $4$.
+
+In addtion, pooling also has the effect of making the model more robust to small translations and distortions in the input data, as the pooling operation is usually invariant to small changes in the input.
+
+In general, the loss of information from pooling is not as big of a problem as it may seem since pooling is usually applied after a convolutional layer, when relevant features of the input have already been extracted. Though, there are some examples where pooling is not used, particularly in cases where such small details may be important. As computing power becomes cheaper and more available, pooling is becoming less common in modern architectures, with other methods of downsampling becoming more common, such as increasing the stride of convolutional layers.
+
+\subsection{CNN Architecture}
+Convolutional, activation, and pooling layers are stacked together to form the architecture of a CNN model. In addition, fully connected layers are usually added at the end of the model to make the final predictions. All the hyperparameters of the model, such as the number of layers, the specific combination and ordering of layers, the number of kernels, the kernel size, the stride, and the pooling size, can all be tuned to improve the performance of the model for a specific task. Thus, CNNs are highly flexible and have found success in a wide variety of applications, such as image classification, object detection, and image segmentation. CNNs have even been used non-image data, such as time series data and spectrograms. Essentially, any data that can be represented as a grid of values and are ``spatially related'' in some way such that local features are important can be processed with CNNs.
+
+\section{Recurrent Neural Networks (RNNs)}\label{sec:rnn}
 
 
 \chapter{Reinforcement Learning (RL)} % make all of this chapter more mathmatically rigorous
