@@ -799,7 +799,7 @@ The main building block of a CNN is the \textbf{convolutional layer}, which appl
 Note that the convolution is commutative, so $f * g = g * f$.
 
 In the discrete case, the convolution may be defined analogously as
-\begin{equation}
+\begin{equation}\label{eq:discrete-convolution}
     (f * g)(n) = \sum_{m=-\infty}^{\infty} f(m) g(n - m),
 \end{equation}
 where $f$ and $g$ are discrete functions or vectors.
@@ -808,13 +808,32 @@ insert figure here
 
 This can be generalized to higher dimensions with $f$ and $g$ being matrices or tensors. Without loss of generality, we can visualize this as a sliding window, called a \textbf{receptive field}, that moves across $f$ and computes the inner product with $g$ at each position, and mapping the result to a new tensor $h = f * g$, called the \textbf{feature map}. $g$ is usually called a \textbf{kernel}, \textbf{filter}, \textbf{mask}, or a \textbf{template}~\cite{moon_general_2025}. The idea of this process is that a kernel may be able to detect certain patterns in the input data, such as edges, corners, or textures, and extract them into the feature map.
 
-insert figure here
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/2d_convolution.pdf}
+    \caption{A $2 \times 2$ kernel is convolved with a $3 \times 3$ input tensor, producing a $2 \times 2$ feature map. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:2d-convolution}
+\end{figure}
 
-The size of the receptive field and the kernel is usually much smaller than the input data, and it is usually square for image processing tasks. The specific offset of the receptive field for each iteration of its movement is called the \textbf{stride} of the convolution. The stride is typically very small, such as $1$ or $2$, and it is usually isotropic. In addition, the input is padded with extra values around the edges such that the convolution is defined for all positions of the receptive field, including the edges. \textbf{Zero padding} is the most common method of padding, where the extra values are set to $0$, though other methods such as copying the edge values or using a constant value are also possible.
+The size of the receptive field and the kernel is usually much smaller than the input data, and it is usually square for image processing tasks. The specific offset of the receptive field for each iteration of its movement can also be controlled by a hyperparameter called the \textbf{stride}. The strictly orthodox defintion of the discrete convolution in Equation~\ref{eq:discrete-convolution} has a stride of $1$, meaning that the receptive field moves in offsets of $1$ pixel at a time. Theoretically, convolution stride may be set to any positive integer or even vary with respect to specific axes. Though, in practice, the stride is for most cases kept to $1$, or sometimes some other very small integer, and is also isotropic.
 
-insert figure here of padding
+In addition, the input is padded with extra values around the edges such that the convolution is defined for all positions of the receptive field, including the edges. \textbf{Zero padding} is the most common method of padding, where the extra values are set to $0$, though other methods such as copying the edge values or using a constant value are also possible.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.35\linewidth]{figs/padding.pdf}
+    \caption{A $4 \times 4$ tensor is zero padded to a $6 \times 6$ tensor, allowing a $3 \times 3$ kernel to be applied to the edges of the original input tensor. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:padding}
+\end{figure}
 
 Each kernel consists of individual parameters that may be learned. Thus, a convolutional layer with $k$ individual kernels will have $k$ individual feature maps. For an RGB image with dimensions $w \times h \times 3$, a typical kernel size is $3 \times 3 \times 3$, and the output feature map will have dimensions of $w \times h \times k$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figs/multiple_kernels.pdf}
+    \caption{$3$ kernels with dimension $3 \times 3 \times 3$ are applied to a $6 \times 6 \times 3$ input tensor, producing a combined feature map with dimension $3 \times 3 \times 3$. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:multiple-kernels}
+\end{figure}
 
 Using the traditional visualization of a neural network, a convolutional layer consists of nodes that each correspond to a single kernel at single position of the receptive field. Each node is only connected to the values in the receptive field rather than the entire input layer with the weights being the parameters of the kernel, with different nodes \textit{sharing the same weights} if they use the same kernel. These two ways of thinking about a convolutional layer are fundamentally the same.
 \begin{table}[h]
@@ -843,21 +862,34 @@ Just like in a fully connected neural network, the output of a convolutional lay
 \subsection{Pooling Layers}
 \textbf{Pooling} is a technique used to reduce the size of feature maps in a CNN, a process called \textbf{downsampling}. Notice that scaling an image down to a smaler size does not fundamentally change the information in a image by much, we are still able to recognize the image, even if it is more pixelated. We can apply the same concept by taking a small region of the feature map applying some ``aggregate'' function to the values in that region to get a single value. This very similar to a convolutional layer, with the receptive field feeding to some scalar function rather than being convolved with a learned kernel. If we wish to ``tile'' the feature map with no overlap, we set the stride to be equal to the size of the receptive field.
 
-insert figure here
-
 The most common type of pooling is \textbf{max pooling}, where the maximum value in each receptive field is taken as the representative value. Other common operations may be taking the mean or the median.
 
 Pooling prevents feature maps from growing too large, which would be computationally expensive and introduce too many parameters. For example, a pooling layer with a $2 \times 2$ receptive field and a stride of $2$ will reduce the size of a $100 \times 100$ feature map to $50 \times 50$, decreasing the number of parameters for the next layer by a factor of $4$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/max_pooling.pdf}
+    \caption{Max pooling with a $2 \times 2$ receptive field and a stride of $2$. The dimensions of the tensor is reduced from $4 \times 4$ to $2 \times 2$. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:max-pooling}
+\end{figure}
 
 In addtion, pooling also has the effect of making the model more robust to small translations and distortions in the input data, as the pooling operation is usually invariant to small changes in the input.
 
 In general, the loss of information from pooling is not as big of a problem as it may seem since pooling is usually applied after a convolutional layer, when relevant features of the input have already been extracted. Though, there are some examples where pooling is not used, particularly in cases where such small details may be important. As computing power becomes cheaper and more available, pooling is becoming less common in modern architectures, with other methods of downsampling becoming more common, such as increasing the stride of convolutional layers.
 
+\subsection{Upsampling Layers}
+
 \subsection{CNN Architecture}
-Convolutional, activation, and pooling layers are stacked together to form the architecture of a CNN model. In addition, fully connected layers are usually added at the end of the model to make the final predictions. All the hyperparameters of the model, such as the number of layers, the specific combination and ordering of layers, the number of kernels, the kernel size, the stride, and the pooling size, can all be tuned to improve the performance of the model for a specific task. Thus, CNNs are highly flexible and have found success in a wide variety of applications, such as image classification, object detection, and image segmentation. CNNs have even been used non-image data, such as time series data and spectrograms. Essentially, any data that can be represented as a grid of values and are ``spatially related'' in some way such that local features are important can be processed with CNNs.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/vgg-16.pdf}
+    \caption{The architecture of VGG-16 from Simonyan \& Zisserman (2015)~\cite{simonyan_very_2015}. The CNN consists of $13$ convolutional layers, $5$ max pooling layers, and $3$ fully connected layers. Reprinted from~\cite{bishop_deep_2023}.}
+\end{figure}
+Convolutional, activation, and pooling layers are stacked together to form the architecture of a CNN model. In addition, fully connected layers are usually added at the end of the model to make the final predictions. All the hyperparameters of the model, such as the number of layers, the specific combination and ordering of layers, the number of kernels, the kernel size, the stride, and the pooling size, can all be tuned to improve the performance of the model for a specific task. Thus, CNNs are highly flexible and have found success in a wide variety of applications, such as image classification, object detection, and image segmentation.
 
-\section{Recurrent Neural Networks (RNNs)}\label{sec:rnn}
+It is important to note that CNNs have extensive applications in non-image data as well, such as spectrograms and text. Essentially, any data that can be represented in a sequence or grid of values and are ``spatially related'' (not necessarily in the literal sense, e.g.\ in temporal data, we convolve with respect to time rather than space) can be processed with CNNs.
 
+maybe talk about dilation layers?
 
 \chapter{Reinforcement Learning (RL)} % make all of this chapter more mathmatically rigorous
 So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human, which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
@@ -886,7 +918,7 @@ put tikz figure here
 %     \draw[->] (env) -- (agent) node[midway, right] {Reward};
 % \end{tikzpicture}
 
-In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a reward.
+In RL, there are two main components: the \textbf{agent} and the \textbf{environment}. The agent is a model that takes in observations from the environment and outputs actions.  The environment then judges the action and returns a \textbf{reward}. The reward may be negative, in which case it may be called a \textbf{penalty}, \textbf{cost}, or \textbf{loss}. The agent then uses the reward as feedback to learn how to improve its performance.
 
 \section{Markov Decision Processes (MDPs)}
 
@@ -1050,6 +1082,9 @@ In cases where an optimal or desired behavior is known, such as in the case of h
 
 put tikz figure here
 
+
+\subsection{Dataset Aggregation (DAgger)}
+
 \subsection{more methods look into them}
 
 \subsection{Inverse Reinforcement Learning (IRL)}
@@ -1057,12 +1092,15 @@ In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} i
 
 put tikz figure here
 
+\section{Cirriculum Learning}
+\cite{narvekar_curriculum_2020}
+
 \cite{arora_survey_2021}
 
 \chapter{Applications of RL in Robotics Literature}
-Now that we have built up a solid foundation for the basics of reinforcement learning, we will now review examples of applications of RL in the field of robotics. This section is by no means extensive or comprehensive, it is only meant to serve as a tasting menu of the state of the art in the field. To acomplish this, we will approach a specific platform as a case study, and then review the literature on that platform. We will examine the methods used in the literature, and how they relate to the concepts we have discussed previously in this article.
+Now that we have built up a solid foundation for the basics of reinforcement learning, we will now review examples of applications of RL in the field of robotics. This section is by no means extensive or comprehensive, it is only meant to serve as a tasting menu of the state of the art in the field. To acomplish this, we will approach a class of robots as a case study. We will then examine methods that have been used in the literature for that platform, and how they relate to the concepts we have discussed previously in this article.
 
-\section{Locomotion of Legged Robots}
+\section{ANYmal: Quadrupedal Legged Robot}\label{sec:anymal}
 Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016, hutter_legged_2022}.
 \begin{figure}[h]
     \begin{subfigure}[b]{0.4\linewidth}
@@ -1078,10 +1116,27 @@ Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadruped
     \label{fig:anymal}
 \end{figure}
 
-Traditional methods for locomotion and navigation of legged robots are often based on trajectory optimization and pathfinding. These methods are often computationally expensive and require a lot of tuning to work well in practice. In addition, they are often not robust to changes in the environment, such as obstacles or changes in terrain. One may think of the change in methods as frontloading the computational in a training environment.
+The ANYmal is a highly articulated robot with four legs, each with three joints and degrees of freedom (DoF). Ordered from the hip to the tip of the leg, these DoF are named in literature as Hip Abduction/Adduction (HAA), Hip Flexion/Extension (HFE), and Knee Flexion/Extension (KFE). Each joint is driven by an electric motor actuator, totaling to 12 actuators controlling the robot's motion. The full range of motion of a single leg is shown in Figure~\ref{fig:anymal-joint-range}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figs/anymal_range_of_motion.png}
+    \caption{Reprinted from~\cite{hutter_anymal_2016}.}
+    \label{fig:anymal-joint-range}
+\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\linewidth]{figs/anymal_configs.png}
+%     \caption{Reprinted from~\cite{hutter_anymal_2016}.}
+% \end{figure}
+
+\subsection{Locomotion of Legged Robots}
+
+At a high level, robotic locomotion may be controlled by commanding the robot to move at a specific velocity in a specific direction, such as through inputs with a joystick or a keyboard. It is then the job of the software to translate these commands into torques to apply to the actuators of the robot.
+
+Traditional methods for locomotion of legged robots are often computationally expensive and require a lot of manual tuning to work well in practice. In addition, they are often not robust to changes in the environment. For example, robots that have different payloads may have markedly different mass distributions and physical dynamics, and thus require additional tuning to work well. In contrast, reinforcement learning (RL) methods are more flexible and allows us to black-box the control of the robot with a policy network.
 
 % make table to compare
-\begin{table}[h]
+\begin{table}[H]
     \centering
     \caption{Comparison of methods for locomotion and navigation of legged robots.}
     \begin{tabular}{|l|l|l|}
@@ -1097,7 +1152,9 @@ Traditional methods for locomotion and navigation of legged robots are often bas
     \label{tab:methods}
 \end{table}
 
-Using TRPO, Hwangbo et al.\ trained a policy to control the ANYmal in a variety of locomotion tasks~\cite{hwangbo_learning_2019}. Figure~\ref{fig:anymal-RL} shows an overview of the training process. Because of the infeasibility of training a a policy on a physical robot, the authors trained the policy in a simulated environment, and then transferred the policy to the real robot.
+\subsubsection{Hwangbo et al. (2019)}
+
+We examine a model-free RL approach first published in Hwangbo et al. (2019)~\cite{hwangbo_learning_2019} for controlling the ANYmal. With RL, the authors were able to achieve state-of-the-art performance in a variety of locomotion tasks, including walking and fall recovery. Compared to previous non-RL methods. The learned policy matched commanded velocities with greater accuracy, were more energy efficient, and exerted less stress on the robot's joints. In addtion, the learned policy was able to achieve a significantly higher top speed, without comprimising gait stability.
 
 \begin{figure}[h]
     \centering
@@ -1106,42 +1163,41 @@ Using TRPO, Hwangbo et al.\ trained a policy to control the ANYmal in a variety 
     \label{fig:anymal-RL}
 \end{figure}
 
-With RL, the authors were able to achieve state-of-the-art performance in a variety of locomotion tasks, including walking and fall recovery. Compared to previous non-RL methods. The learned policy matched commanded velocitiies with greater accuracy, were more energy efficient, and exerted less stress on the robot's joints. In addtion, the learned policy was able to achieve a significantly higher top speed, without comprimising gait stability.
+Figure~\ref{fig:anymal-RL} shows an overview of the training process. Because of the infeasibility of training a a policy on a physical robot, the authors trained the policy in a simulated environment, and then transferred the policy to the real robot.
+
+The policy network outputs the desired joint positions of the robot, which are passed to a controller that computes the actuator torques to apply to the robot. Each observation to the policy network consisted of relevant joint state information, its history, the previous action of the policy, and the command passed to the robot. The controller that takes the joint positions and computes the actuator torques is commonly a proptional-derivative (PD) controller or proportional-integral-derivative (PID) controller.
+
+LOOK INTO THIS??? inverse kinematics???
+
+Since realistic actuators are very difficult to model accurately in simulation, the authors used supervised learning to train a standard feedforward neural network to learn the actuator torques from desired and actual joint positions and velocities that is usually passed to the controller \textit{in situ}. This actuator net essentially acts as the vrtual controller \textit{in silico}. The torques are then passed to the rigid body simulation to provided realistic dynamics for the policy to learn from. The architecture of the training process is shown in Figure~\ref{fig:anymal-detailed}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{figs/anymal_detailed.png}
+    \includegraphics[width=\linewidth]{figs/anymal_detailed.png}
     \caption{Reprinted from~\cite{hwangbo_learning_2019}.}
     \label{fig:anymal-detailed}
 \end{figure}
 
-inverse kinematics???
+In simulation, the authors also include models of the robot with different mass distributions to make the policy robust to such changes in intertial properties. Since trajectories were generated in simulation, the authors were able to considerably speed up training as they were not constrained to the temporal limitations of the material world. Using TRPO, the published policy was trained in less than 24 hours of real time, with a cirrciulum in place such that the costs imposed on the policy gradually increased as the policy improved. This allowed the policy to learn to walk in the first place, and then optimize its gait later in training. For comparison, previous non-RL methods may take weeks or months to tune.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.7\linewidth]{figs/anymal_range_of_motion.png}
-    \caption{Reprinted from~\cite{hutter_anymal_2016}.}
-    \label{fig:anymal-joint-range}
-\end{figure}
-
-In simulation, a different models with randomly sampled center of masses were used for training to account for potential differences in configuration in the real robot.
-
+\subsubsection{Lee et al. (2020)}
+The same group of authors published a successor paper in 2020~\cite{lee_learning_2020} that builds on the previous work, using a completely different architecture to improve the performance of the policy over highly diverse terrains. Using purley propioceptive internal state information, the policy was able to learn to walk on a variety of terrains with different textures, slopes, and coefficients of friction, as shown in Figure~\ref{anyml-terrain-gallery}, without any prior knowledge of the environment.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/figure1.pdf}
     \caption{Reprinted from~\cite{lee_learning_2020}.}
-    \label{fig:enter-label}
+    \label{fig:anymal-terrain-gallery}
 \end{figure}
 
+Instead of training a traditional feedforward neural network on state information, the authors instead use a temporal convolutional network (TCN) to process the state history, rather than just the most recent state. In addition, another policy is trained with privileged \textbf{ground-truth} information about the environment, such as the terrain type and external forces acting on the robot. This privileged policy is designated as the teacher policy, which is used to train the student policy via DAgger imitation learning. According to the authors, this approach was necessary to learn effective policies, as this locomotion task is markedly more difficult than the previous work, and outright learning a policy from scratch was not feasible. In simulation, diverse terrain was procedurallly generated to to populate the environment with terrain types that the robot may encounter in the real world. The novel architecture presented in Lee et al. (2020) is visualized in Figure~\ref{fig:terrain-architecture}.
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/figure4.pdf}
     \caption{Reprinted from~\cite{lee_learning_2020}.}
-    \label{fig:enter-label}
+    \label{fig:anymal-terrain-architecture}
 \end{figure}
 
 \cite{hutter_legged_2022}
-\cite{lee_learning_2020}
 
 \section{Exoskeletons}
 \cite{luo_reinforcement_2021}
