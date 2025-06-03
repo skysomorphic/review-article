@@ -270,7 +270,7 @@ For virtually all non-trivial problems, linear relationships are far too reducti
 
 \subsection{Loss Functions}
 
-A \textbf{\gls{loss-function}} (also sometimes called a \textbf{cost function}), typically denoted $L(\boldsymbol{\theta})$ or just $L$, is the measure of how ``bad'' a set of parameters $\boldsymbol{\theta}$ for a model is. A common definition is the deviation between a model's prediction and an actual result. For example, when building a speech recognition model, the loss may be defined as the error rate between its output transcription and the correct transcription. The features of the training data that are provided to the model, in this case, the correct transcriptions, are identified with \textbf{\glspl{label}} that tell the model what it should train towards.
+A \textbf{\gls{loss-function}} (also sometimes called a \textbf{cost function} or an \textbf{objective function}), typically denoted $L(\boldsymbol{\theta})$ or just $L$, is the measure of how ``bad'' a set of parameters $\boldsymbol{\theta}$ for a model is. A common definition is the deviation between a model's prediction and an actual result. For example, when building a speech recognition model, the loss may be defined as the error rate between its output transcription and the correct transcription. The features of the training data that are provided to the model, in this case, the correct transcriptions, are identified with \textbf{\glspl{label}} that tell the model what it should train towards.
 
 Losses over all labels in the training data are aggregated into an value for the overall loss function, the most common method of which is the \textbf{\gls{mse}}:
 \begin{equation}
@@ -411,8 +411,6 @@ The addition of layers to a model increases its complexity, the number of which 
 
 The output layer of a model is tailored to the task at hand. A \textbf{regression} model predicts a single, continuous value, represented by a single node in the output layer, or a vector of continuous values, represented by multiple nodes in the output layer. In contrast, a \textbf{classification} model sorts inputs into discrete categories, usually with the final output layer being a vector of nodes, each representing a class, with the value of each node representing the probability that the input belongs to that class. The specific differences between these two types of models will be discussed in Section~\ref{sec:classification}.
 
-\subsection{Example: MNIST}
-
 \section{Backpropagation}
 
 \textbf{Backpropagation} is the textbook algorithm for computing the gradient of the loss function. Essentially, it is the application of the chain rule to neural networks~\cite{nielsen_neural_2019,sanderson_backpropagation_2017}.
@@ -503,7 +501,7 @@ wow this is really complicated to explain with math will come back later
 
 Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{figs/underfitting_overfitting.png}
     \caption{Polynomial models of different degrees fitted to sample data. Modified from documentation for \texttt{scikit-learn}~\cite{pedregosa_scikit-learn_2011}.}
@@ -528,14 +526,14 @@ The most common variant of cross-validation is $k$-fold cross-validation, a non-
         \For{$i = 1, \ldots, k$}
             \State Train model on $\mathcal{S} \setminus f_i$
             \State Evaluate model on $f_i$
-        \EndFor
+        \EndFor \\
         \Return average performance over all $k$ folds
     \end{algorithmic}
 \end{algorithm}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{figs/kfold_cross_validation.png}
+    \includegraphics[width=\linewidth]{figs/kfold_cross_validation.png}
     \caption{\cite{commons_filek-fold_2024}}
     \label{fig:enter-label}
 \end{figure}
@@ -544,26 +542,58 @@ $k$ is a hyperparameter, usually set to $5$ or $10$. The model is trained on $k-
 
 \subsection{Regularization}
 
-learn more about this
+\textbf{Regularization} techniques are used to prevent overfitting by constraining the model's complexity. This may be achieved in many different manners, but we will discuss some of the most common methods here~\cite{bishop_deep_2023}.
 
-\subsection{Dropout}
-learn more about this
 
+\subsubsection{L1 Regularization/LASSO}
+\textbf{L1 regularization}, also known as \textbf{LASSO} (Least Absolute Shrinkage and Selection Operator), adds a penalty term to the loss function that is proportional to the sum of the absolute value of the parameters, also known as the \textbf{L1 norm}.
+\begin{equation}
+    \hat{L}(\boldsymbol{\theta}) = L(\boldsymbol{\theta}) + \lambda \sum_i |\theta_i|
+\end{equation}
+This encouragees the model to have small weights and $\boldsymbol{\theta}$ to be sparse, meaning that many of the weights will be exactly zero. This has the effect of reducing the complexity of the model, and thus reducing overfitting. The loss surface of sparse $\boldsymbol{\theta}$ will also have less dimensions, which may reduce the number of critical points and generally facilitate optimization.
+
+\subsubsection{L2 Regularization/Ridge}
+\textbf{L2 regularization}, also known as \textbf{Ridge regression}, is very similar to LASSO, except that the L2 norm of the parameters is used instead of the L1 norm.
+\begin{equation}
+    \hat{L}(\boldsymbol{\theta}) = L(\boldsymbol{\theta}) + \lambda \sum_i \theta_i^2
+\end{equation}
+Theoretically, one may subsitute any norm of $\boldsymbol{\theta}$, but the L1 and L2 norms are by far the most common.
+
+\subsubsection{Dropout}
+\textbf{Dropout} is a regularization technique that randomly prevents the activation of some nodes in a model during training~\cite{srivastava_dropout_2014}. This prevents the model from relying too heavily on any one node, and thus reduces overfitting. The fraction of nodes to keep active is a hyperparameter $\rho \in [0, 1]$. Typical values for $\rho$ are $0.5$ for hidden layers and $0.8$ for the input layer~\cite{bishop_deep_2023}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/dropout.pdf}
+    \caption{For each data point in the training data, random nodes are deactivated. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:dropout}
+\end{figure}
+When the model is evaluated, all nodes are activated, but all weights are scaled by $\rho$ to account for the fact that not all nodes were active during training.
+
+\subsubsection{Skip Connections}
+\textbf{Skip connections}, or \textbf{residual connections}, are often used in very deep neural networks as a method of regularization~\cite{he_deep_2016,bishop_deep_2023}. Skip connections add back the input of a node to its activation before it is passed to the next layer. The combination of node and a skip connection is called a \textbf{residual block}, and networks consisting of layers of residual blocks are called \textbf{residual networks} (ResNets)~\cite{bishop_deep_2023}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/skip_connection.pdf}
+    \caption{Three residual blocks connected in series. The input of a block is added back to the output of the activation function before being passed to the next layer. Reprinted from~\cite{bishop_deep_2023}.}
+    \label{fig:residual-block}
+\end{figure}
+
+This has the effect of allowing a model to learn to ignore a node in a layer if it is not useful. Li et. al~\cite{li_visualizing_2018} have also shown that skip connections result in smoother loss surfaces, which makes optimization easier.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/smooth.pdf}
+    \caption{Visualization of the loss surface of a 56-layer deep nnetwork \textbf{a)} without skip connections, and \textbf{b)} with skip connections. Reprinted from~\cite{bishop_deep_2023}, in turn taken from~\cite{li_visualizing_2018}.}
+    \label{fig:residual-loss-surface}
+\end{figure}
 
 \section{Data Batching}
 
-Rather than considering the entire training dataset all at once, we can iterate through small subsets of the training data, called \textbf{\glspl{batch}}, and compute gradient descent on that subset, updating parameters every batch. This is called \textbf{mini-batch gradient descent}, as opposed to \textbf{batch gradient descent}, which considers the entire training data set. (The author despises this inconsistent terminiology as much as you do.) After all batches have been iterated through, the model is said to have completed one \textbf{epoch} of training. The dataset is then shuffled, and the process is repeated for a specified number of epochs.
+Rather than considering the entire training dataset all at once, we can iterate through small subsets of the training data, called \textbf{\glspl{batch}}, and compute gradient descent on that subset, updating parameters every batch. This is called \textbf{mini-batch gradient descent}, as opposed to \textbf{batch gradient descent}, which considers the entire training data set. (The author despises this inconsistent terminiology as much as you do.) After all batches have been iterated through, the model is said to have completed one \textbf{epoch} of training. The dataset is then shuffled, and the process is repeated for a specified number of epochs.The size of a batch and the number of epochs to train for are both hyperparameters.
 
-The size of a batch and the number of epochs to train for are both hyperparameters.
-
-% ehh look into this more
-Batching also has the advantage of being able to parallelize the computation of the gradient, as each batch can be computed independently. Thus, \textbf{graphics processing units} (GPUs) and \textbf{tensor processing units} (TPUs) are highly effective for training neural networks, with training times reduced by orders of magnitude with hardware acceleration.
-
-\subsection{Batch size}
 
 \subsection{Stochastic Gradient Descent}
 
-Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points.
+Rather than computing the gradient of the loss function over the entire training data set, \textbf{stochastic gradient descent} (SGD) iterates on every single example~\cite{bishop_deep_2023, ruder_overview_2017}. This is much faster than the former method, usually called \textbf{batch gradient descent}, but it is also much noisier. However, a noisy path may not necessarily be undesirable, as it may help the model escape local minima and saddle points. This is essentially mini-batch gradient descent with a batch size of $1$.
 
 \begin{algorithm}
     \caption{Stochastic gradient descent with learning rate $\eta$ over N epochs.}\label{alg:sgd}
@@ -591,8 +621,6 @@ Rather than computing the gradient of the loss function over the entire training
 The naive gradient descent algorithm introduced in Section~\ref{sec:optimization} has many limitations.
 
 Perhaps the most obvious problem is that it is susceptible to critical points that are not the global minima of the loss function. Since $|\boldsymbol{\theta}|$ is usually very large, $L$ will have exceedingly many local minima and saddle points, any one of which may trap gradient descent.
-
-
 
 \subsection{Momentum}
 The \textbf{momentum} modification for gradient descent adds an ``inertia'' term, by also factoring the previous update into the current update. This is similar to the physical concept of momentum, where an object in motion tends to stay in motion.
@@ -661,26 +689,30 @@ Adaptive learning rates are a class of methods that introduce a variable $\sigma
 \end{equation}
 
 \subsubsection{Adagrad}
-\textbf{Adapative Gradient Descent}, more commonly known as \textbf{Adagrad}, is a basic adapative learning rate method that sets $\sigma_i^{(t)}$ to be the sum of the squares of each iteration of the gradient with respect to the parameter $i$.
+\textbf{Adapative Gradient Descent}, more commonly known as \textbf{\textsc{Adagrad}}, is a basic adapative learning rate method that sets $\sigma_i^{(t)}$ to be the sum of the squares of each iteration of the gradient with respect to the parameter $i$.
 \begin{equation}
-    \sigma_i^t = \sqrt{\sum_{j=0}^t {\left(\frac{\partial L}{\partial \theta_i^{(j)}}\right)}^2 + \epsilon}
+    \sigma_i^t = \sqrt{\sum_{j=0}^t {\left(\frac{\partial L}{\partial \theta_i^{(j)}}\right)}^2} + \epsilon
 \end{equation}
 A very small $\epsilon \lll 1$ is included to prevent singularity problems when $\sigma_i^{(t)}$ is $0$.
 
 \subsubsection{RMSprop}
-$\sigma$ can only increase in Adagrad, which can cause problems if if the effective learning rate becomes too small. \textbf{RMSprop} is a modification of Adagrad that weights previous iterations of the gradient and the most recent gradient with a hyperparameter decay factor $\alpha$.
+$\sigma$ can only increase in Adagrad, which can cause problems if if the effective learning rate becomes too small. \textbf{\textsc{RMSprop}} is a modification of Adagrad that weights previous iterations of the gradient and the most recent gradient with a hyperparameter decay factor $\alpha$.
 \begin{equation}
-    \sigma_i^t = \sqrt{\alpha {(\sigma_i^{(t-1)})}^2 + (1-\alpha)\left(\frac{\partial L}{\partial \theta_i^{(t)}}\right)^2 + \epsilon}
+    \sigma_i^t = \sqrt{\alpha {(\sigma_i^{(t-1)})}^2 + (1-\alpha)\left(\frac{\partial L}{\partial \theta_i^{(t)}}\right)^2} + \epsilon
 \end{equation}
 This allows RMSprop to be more flexible and responsive than Adagrad, slowing down when the gradient is large and speeding up when the gradient is small.
+
 \subsubsection{Adam}
-\textbf{Adaptive Moment Estimation}, or \textbf{Adam}, is a more advanced adaptive learning rate method that combines the ideas of momentum and RMSprop. It uses two decay factors, $\beta_1$ and $\beta_2$, to weight the previous iterations of the gradient and the squared gradient, respectively.
+\textbf{Adaptive Moment Estimation}, or \textbf{\textsc{Adam}}, is a more advanced adaptive learning rate method that combines the ideas of momentum and RMSprop~\cite{kingma_adam_2017, bishop_deep_2023}. It uses two hyperparameter decay factors, $\beta_1$ and $\beta_2$, to weight the previous iterations of the gradient and the squared gradient, respectively. The parameters are updated as follows,
+\begin{align}
+    s_i^{(t+1)} &= \beta_1 s_i^{(t)} + (1-\beta_1) \left(\frac{\partial L}{\partial \theta_i^{(t)}}\right), \\
+    r_i^{(t+1)} &= \beta_2 r_i^{(t)} + (1-\beta_2) \left(\frac{\partial L}{\partial \theta_i^{(t)}}\right)^2, \\
+    \hat{s}_i^{(t)} &= \frac{s_i^{(t)}}{1-\beta_1^{t}}, \\
+    \hat{r}_i^{(t)} &= \frac{r_i^{(t)}}{1-\beta_2^{t}}, \\
+    \theta_i^{(t+1)} &= \theta_i^{(t)} - \eta \frac{\hat{s}_i^{(t)}}{\sqrt{\hat{r}_i^{(t)}} + \epsilon}.
+\end{align}
 
-\cite{kingma_adam_2017}
-
-read paper come back later
-
-This algorithm is a standard in the field, and it is the default optimizer in many machine learning libraries, such as PyTorch.
+This algorithm is ubiquitous in the field, and it is the default optimizer in many machine learning libraries, such as PyTorch. From Adam, many other optimizers have been derived, such as AdaMax~\cite{kingma_adam_2017}, Nadam (Adam with Nesterov momentum)~\cite{dozat_incorporating_2016}, and ND-Adam for deep neural networks~\cite{zhang_improved_2018}.
 
 \subsection{Learning Rate Scheduling}
 
@@ -688,11 +720,7 @@ The learning rate $\eta$ is a hyperparameter that is usually set to a constant v
 \begin{equation}
     \theta_{i}^{(t+1)} = \theta_{i}^{(t)} - \frac{\eta^{(t)}}{\sigma_i^t}\frac{\partial L}{\partial \theta_i^{(t)}}
 \end{equation}
-Typically, $\eta^{(t)}$ is set to decay as the number of iterations increases to prevent sudden explosions in step size after many iterations of small $\sigma$.
-
-\subsubsection{Warmup}
-
-lmao let the model warm up???
+Typically, $\eta^{(t)}$ is set to decay as the number of iterations increases to prevent sudden explosions in step size after many iterations of small $\sigma$. This decay may be linear, exponential, or stepwise. Additionally, the learning rate may be set to increase for a period of time at the beginning of optimization, usually called \textbf{warmup}. This has the effect of preventing large divergeneces in the early stages of training, and allowing the model to find more well-behaved parts of the loss surface early on, rather than getting stuck in unideal wells~\cite{liu_variance_2021, kalra_why_2024}.
 
 \section{Normalization}
 So far, we have only discussed optimization methods that do not directly change the loss surface. By appling statistical \textbf{normalization}, we can make the loss sufrace easier to optimize, independently of the optimization method used.
@@ -721,13 +749,12 @@ Since normalization with z-scores moves the mean to $0$, this introduces some mo
 
 In testing, $\boldsymbol{\mu}$ and $\boldsymbol{\sigma}$ are replaced with moving averages, as it is infeasible to wait around for a full batch of data.
 
-It is still debated why exactly BatchNorm is so effective, but the prevailing hypothesis is that it has the effect of smoothing the loss surface, making it easier to optimize.
-\cite{ioffe_batch_2015}\cite{ioffe_batch_2017}\cite{santurkar_how_2019}
+It is still debated why exactly BatchNorm is so effective, but the prevailing hypothesis is that it has the effect of smoothing the loss surface, making it easier to optimize~\cite{ioffe_batch_2015, ioffe_batch_2017, santurkar_how_2019}.
 
 \section{Classification}\label{sec:classification}
-Some tasks require a model to classify an input into one of a finite number of classes. Perhaps the most well known example is identifying handwritten digits from the MNIST dataset. In such cases, it is far from optimal to represent classes as scalar value features to train towards. Instead, classes are usually represented as one-hot vectors, where the index of the class is set to $1$, and all other indices are set to $0$.
+Some tasks require a model to classify an input into one of a finite number of classes. Perhaps the most well known example of a classification problem is identifying handwritten digits from the MNIST dataset~\cite{lecun_gradient-based_1998}. In such cases, it is far from optimal to represent classes as scalar value features to train towards. Instead, classes are usually represented as one-hot vectors, where the index of the class is set to $1$, and all other indices are set to $0$.
 \begin{equation}
-    \mathbf{y} = \begin{bmatrix}
+    \mathbf{\hat{y}} = \begin{bmatrix}
         0 \\
         1 \\
         0 \\
@@ -754,14 +781,14 @@ When implemented in code, the final normalized vector after being passed through
         -0.9 \\
     \end{bmatrix}}
     \xrightarrow{\text{softmax}}
-    \stackrel{\mbox{final layer probablilities $\sigma({\mathbf{z}})$}}{\begin{bmatrix}
+    \stackrel{\mbox{final layer probablilities $\mathbf{y'} = \sigma({\mathbf{z}})$}}{\begin{bmatrix}
         0.13 \\
         0.05 \\
         0.80 \\
         0.02 \\
     \end{bmatrix}}
     \xrightarrow{\text{argmax}}
-    \stackrel{\mbox{identified class $\mathbf{y}$}}{\begin{bmatrix}
+    \stackrel{\mbox{identified class $\mathbf{\hat{y}}$}}{\begin{bmatrix}
         0 \\
         0 \\
         1 \\
@@ -771,17 +798,13 @@ When implemented in code, the final normalized vector after being passed through
 
 \subsection{Cross Entropy Loss}
 
-Recall the formula for the ubiquitous MSE loss for vector outputs.
-\begin{equation}
-L = \frac{1}{N}\sum \left(\sum_i (\hat{y}_i-y'_i)^2\right)
-\end{equation}
-For classification purpose, another loss called \textbf{cross entropy} is more commonly used instead, often paired with softmax. Minimizing cross entropy is equivalent to maximizing likelihood, for various information theory reasons. \url{https://www.youtube.com/watch?v=fZAZUYEeIMg}
+For classification purpose, the \textbf{cross entropy loss}, or \textbf{logarithmic loss}, is more commonly used instead of MSE\@.
 \begin{equation}
 L = \frac{1}{N}\sum \left(-\sum_i \hat{y}_i \ln y'_i\right)
 \end{equation}
-Note that $\ln y'_i$ is always negative because $y'$ is the output of the softmax, and thus the term inside the parentheses is always positive.
+This function comes from information theory, where it is a metric for measuring differences between two probability distributions. In this case, the two compared distributions are the class one-hot vectors and the output of the softmax function.
 
-Cross entropy allso usually gives smoother loss surfaces compared to MSE for classification problems.
+Note that $\ln y'_i$ is always negative because $y'$ is the output of the softmax, and thus the term inside the parentheses is always positive.
 
 \section{Convolutional Neural Networks (CNNs)}\label{sec:cnn}
 Convolutional neural networks (CNNs) are a class of neural networks that are particularly well-suited for image processing tasks. Consider an image with dimensions of $w \times h$ and $c$ channels. This can be represented as a rank $3$ tensor $\mathbf{X} \in \mathbb{R}^{w \times h \times c}$, which will be the input to a neural network. If we use a fully connected neural network, the number of parameters in the first hidden layer will be enormous, as each node will be connected to every pixel (or even every channel) in the image. This is not only computationally expensive, but it also makes the model very prone to overfitting.
@@ -808,7 +831,7 @@ insert figure here
 
 This can be generalized to higher dimensions with $f$ and $g$ being matrices or tensors. Without loss of generality, we can visualize this as a sliding window, called a \textbf{receptive field}, that moves across $f$ and computes the inner product with $g$ at each position, and mapping the result to a new tensor $h = f * g$, called the \textbf{feature map}. $g$ is usually called a \textbf{kernel}, \textbf{filter}, \textbf{mask}, or a \textbf{template}~\cite{moon_general_2025}. The idea of this process is that a kernel may be able to detect certain patterns in the input data, such as edges, corners, or textures, and extract them into the feature map.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.7\linewidth]{figs/2d_convolution.pdf}
     \caption{A $2 \times 2$ kernel is convolved with a $3 \times 3$ input tensor, producing a $2 \times 2$ feature map. Reprinted from~\cite{bishop_deep_2023}.}
@@ -819,7 +842,7 @@ The size of the receptive field and the kernel is usually much smaller than the 
 
 In addition, the input is padded with extra values around the edges such that the convolution is defined for all positions of the receptive field, including the edges. \textbf{Zero padding} is the most common method of padding, where the extra values are set to $0$, though other methods such as copying the edge values or using a constant value are also possible.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.35\linewidth]{figs/padding.pdf}
     \caption{A $4 \times 4$ tensor is zero padded to a $6 \times 6$ tensor, allowing a $3 \times 3$ kernel to be applied to the edges of the original input tensor. Reprinted from~\cite{bishop_deep_2023}.}
@@ -828,7 +851,7 @@ In addition, the input is padded with extra values around the edges such that th
 
 Each kernel consists of individual parameters that may be learned. Thus, a convolutional layer with $k$ individual kernels will have $k$ individual feature maps. For an RGB image with dimensions $w \times h \times 3$, a typical kernel size is $3 \times 3 \times 3$, and the output feature map will have dimensions of $w \times h \times k$.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{figs/multiple_kernels.pdf}
     \caption{$3$ kernels with dimension $3 \times 3 \times 3$ are applied to a $6 \times 6 \times 3$ input tensor, producing a combined feature map with dimension $3 \times 3 \times 3$. Reprinted from~\cite{bishop_deep_2023}.}
@@ -878,6 +901,10 @@ In addtion, pooling also has the effect of making the model more robust to small
 In general, the loss of information from pooling is not as big of a problem as it may seem since pooling is usually applied after a convolutional layer, when relevant features of the input have already been extracted. Though, there are some examples where pooling is not used, particularly in cases where such small details may be important. As computing power becomes cheaper and more available, pooling is becoming less common in modern architectures, with other methods of downsampling becoming more common, such as increasing the stride of convolutional layers.
 
 \subsection{Upsampling Layers}
+Similarly, \textbf{upsampling} is used to increase the size of feature maps in a CNN\@. This is usually done to restore the data to its original size after processing, such as in image segmentation tasks, where the goal is to classify pixels in an image.
+For example, nearest neighbor upsampling simply just repeats each value to fill in the gaps of the larger dimension. Another option is ``max unpooling'', which fills in the gaps with zeros.
+
+insert figure here
 
 \subsection{CNN Architecture}
 \begin{figure}[h]
@@ -885,7 +912,7 @@ In general, the loss of information from pooling is not as big of a problem as i
     \includegraphics[width=\linewidth]{figs/vgg-16.pdf}
     \caption{The architecture of VGG-16 from Simonyan \& Zisserman (2015)~\cite{simonyan_very_2015}. The CNN consists of $13$ convolutional layers, $5$ max pooling layers, and $3$ fully connected layers. Reprinted from~\cite{bishop_deep_2023}.}
 \end{figure}
-Convolutional, activation, and pooling layers are stacked together to form the architecture of a CNN model. In addition, fully connected layers are usually added at the end of the model to make the final predictions. All the hyperparameters of the model, such as the number of layers, the specific combination and ordering of layers, the number of kernels, the kernel size, the stride, and the pooling size, can all be tuned to improve the performance of the model for a specific task. Thus, CNNs are highly flexible and have found success in a wide variety of applications, such as image classification, object detection, and image segmentation.
+Convolutional, activation, and pooling layers are stacked together to form the architecture of a CNN model. In addition, fully connected layers are usually added at the end of the model to make the final predictions. All the hyperparameters of the model, such as the number of layers, the specific combination and ordering of layers, the number of kernels, the kernel size, the stride, and the pooling size, can all be tuned to improve the performance of the model for a specific task. Thus, CNNs are highly flexible and have found success in a wide variety of applications, such as image classification, or object detection.
 
 It is important to note that CNNs have extensive applications in non-image data as well, such as spectrograms and text. Essentially, any data that can be represented in a sequence or grid of values and are ``spatially related'' (not necessarily in the literal sense, e.g.\ in temporal data, we convolve with respect to time rather than space) can be processed with CNNs.
 
@@ -977,22 +1004,28 @@ $G$ can be defined on a trajectory $\tau$ as
 
 The \textbf{expected return} $J_\pi$ of a policy $\pi$ is then formally defined as the expected value $G$ over all possible trajectories that the agent may take.
 \begin{equation}\label{eq:expected-return}
-    J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_\pi(\tau)\ d\tau.
+    J_\pi = \mathbb{E}_{\tau\sim\pi}[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_\pi(\tau)\ d\tau.
 \end{equation}
 This value, $J_\pi$, is the value that we want to maximize to optimize the policy $\pi$.
 
 Additionally we may define two other closely related functions, the \textbf{state-value function} $V_\pi(s): \mathcal{S} \to \mathbb{R}$ defined as the expected discounted return of the agent at state $s$,
 \begin{equation}
-    V_\pi(s) = \mathbb{E}_\pi[G_t | s_t = s],
+    V_\pi(s) = \mathbb{E}_{s\sim\pi}[G_t | s_t = s],
 \end{equation}
 and the \textbf{action-value function} $Q_\pi(s, a): \mathcal{S} \times \mathcal{A} \to \mathbb{R}$ defined as the expected discounted return of the agent at state $s$ and taking action $a$,
 \begin{equation}
-    Q_\pi(s, a) = \mathbb{E}_\pi[G_t | s_t = s, a_t = a].
+    Q_\pi(s, a) = \mathbb{E}_{s, a\sim\pi}[G_t | s_t = s, a_t = a].
 \end{equation}
 Note the following relationship between the two functions,
 \begin{equation}
     V_\pi(s) = \sum_a \pi(a | s) Q_\pi(s, a).
 \end{equation}
+
+We can also define an \textbf{advantage function} $A_\pi(s, a)$, which is the difference between the action-value function and the state-value function,
+\begin{equation}
+    A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s).
+\end{equation}
+This function quantifies how much better or worse taking action $a$ in state $s$ is compared to the average action in that state, and it is relevant for many Rl algorithms.
 
 \subsubsection{Bellman Equation}
 
@@ -1002,26 +1035,26 @@ Note the following relationship between the two functions,
 Up to this point, our notation has been limited to discrete state and action spaces. It is important to take note that for many applications $\mathcal{S}$ and $\mathcal{A}$ may be continuous spaces, such as the position and velocity of a robot arm, or the torque to apply to a joint. It is rather easy in most cases to extend the concepts that we have discussed to the continuous case: replacing sums with integral, probabilities with probability density functions, and so on. So, we will not go into much detail here about the specific nuances between discrete and continuous domains, just keep in mind that there may be some abuses of notation here and there.
 
 \section{Policy Gradient}
-\textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the expected return $J_\pi$. This is typically accomplished by parameterizing the policy $\pi$ with $\boldsymbol{\theta}$ and then using gradient descent/ascent to optimize $J_\pi$ with respect to $\boldsymbol{\theta}$. Note that this is exactly the same as the optimization problem we have discussed in the previous chapter. In fact, in DRL, the parameters of the policy \textit{are precisely} the parameters of its neural network.
+\textbf{Policy gradient} methods are a class of RL algorithms that learn a policy by directly optimizing the expected return $J_\pi$.
 
 \subsection{Policy Gradient Theorem}
 The \textbf{policy gradient theorem} (see proof in Appendix~\ref{sec:policy-gradient-theorem-proof}) states that the gradient of $J_\pi$ with respect to the parameters $\boldsymbol{\theta}$ can be expressed as
 \begin{equation}\label{eq:policy-gradient-theorem}
-    \nabla_{\boldsymbol{\theta}} J_\pi =  \mathbb{E}_\pi\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right],
+    \nabla_{\boldsymbol{\theta}} J_\pi =  \mathbb{E}_{\tau\sim\pi}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
 \end{equation}
 where the summation represents all pairs of $(s_t, a_t)$ in a trajectory.
 This is a important result, as it allows us to compute the gradient of $J_\pi$, and thus optimizing $\boldsymbol{\theta}$, without having to compute the state-value function $V_\pi$. Inaddition, policy gradient methods are \textbf{model-free} methods, as they do not require any knowledge of the environment, its associated value functions or the transition function. The theorem only presupposes that $\pi_{\boldsymbol{\theta}}$ is differentiable, which is a reasonable assumption for almost all neural networks.
 
-In practice, the right-hand side of the equation is estimated by sampling trajectories from the environment in a Monte Carlo fashion, and then computing the average over all sampled trajectories.
+\subsection{\textsc{REINFORCE}}
+In 1992, Ronald J. Williams introduced the basic \textsc{REINFORCE} algorithm, which uses an approximation of the policy gradient theorem to directly compute $\nabla_{\boldsymbol{\theta}} J_\pi$.~\cite{williams_simple_1992}
+
+The right-hand side of the policy gradient theorem is estimated by sampling trajectories from the environment in a Monte Carlo fashion, and then computing the average over all sampled trajectories.
 \begin{equation}
-    \nabla_{\boldsymbol{\theta}} J_\pi \approx \frac{1}{N} \sum_{i=1}^{N} G(\tau^{(i)}) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t^{(i)} | s_t^{(i)})
+    \nabla_{\boldsymbol{\theta}} J_\pi \approx \frac{1}{N} \sum_{i=1}^{N} G(\tau^{(i)}) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t^{(i)} | s_t^{(i)})
 \end{equation}
 
-\subsection{\texttt{REINFORCE}}
-
-In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, which uses an even simpler version of the policy gradient theorem in combination with sampling trajectories in a Monte Carlo manner.~\cite{williams_simple_1992}
 \begin{algorithm}
-    \caption{\texttt{REINFORCE} with policy $\pi_{\boldsymbol{\theta}}$, learning rate $\eta$, and $N$ episodes.}\label{alg:REINFORCE}
+    \caption{\textsc{REINFORCE} with policy $\pi_{\boldsymbol{\theta}}$, learning rate $\eta$, and $N$ episodes, }\label{alg:REINFORCE}
     \begin{algorithmic}[1]
         \State Initialize parameters $\boldsymbol{\theta}$
         \For{$i = 1, \ldots, N$}
@@ -1039,20 +1072,30 @@ In 1992, Ronald J. Williams introduced the basic \texttt{REINFORCE} algorithm, w
 Note that line \texttt{8} is equivalent to gradient descent on $-J_\pi$, which means that all the the optimization techniques that we have discussed in Section~\ref{sec:gradient-descent-methods} can be applied here, up to a difference in sign.
 
 \subsection{Trust Region Policy Optimization (TRPO)}
-\cite{schulman_trust_2015}
+\textbf{Trust Region Policy Optimization} (TRPO) is a policy gradient method that computes new policy parameters within a ``trust region'' in parameter space within some small distance from the current parameters $\boldsymbol{\theta}$~\cite{schulman_trust_2015}. Compared to \texttt{REINFORCE} and other first-order gradient descent/ascent methods that take a leap of faith in the direction of the gradient, TRPO finds an optimal local step that is guaranteed to improve the expected return $J_\pi$ by a small amount.
 
+More specifically, TRPO uses an expectation maximization (EM) approach to optimize the policy parameters $\boldsymbol{\theta}$, where we maximize the expected return $J_\pi$ subject to a constraint on the KL divergence between the new policy $\pi_{\boldsymbol{\theta}'}$ and the old policy $\pi_{\boldsymbol{\theta}}$.
+
+The expected improvement between some known policy $\pi_{\boldsymbol{\theta}^{\text{old}}}$ and a possible new policy $\pi_{\boldsymbol{\theta}^{\text{new}}}$ can be expressed as,
+\begin{equation}
+    \mathcal{L}(\boldsymbol{\theta}^\text{old}, \boldsymbol{\theta}^\text{new})= \mathbb{E}_{s\sim\pi_{\boldsymbol{\theta}^\text{old}}}\left[\sum_a \pi_{\boldsymbol{\theta}^\text{new}}(a | s) \log \frac{\pi_{\boldsymbol{\theta}^\text{new}}(a|s)}{\pi_{\boldsymbol{\theta}^\text{old}}(a|s)}\right].
+\end{equation}
+
+We can then optimize this expected improvement by maximizing it with respect to $\boldsymbol{\theta}^\text{new}$, subject to a constraint $\delta$ on the KL divergence between the new and old policies,
+\begin{equation}
+    \boldsymbol{\theta}^{(t+1)} = \arg\max_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}^{(t)}, \boldsymbol{\theta}) \quad \text{s.t.} \quad D_{KL}\left(\pi_{\boldsymbol{\theta}}, \pi_{\boldsymbol{\theta}^{(t)}}\right) \leq \delta.
+\end{equation}
+
+\subsubsection{Implementation}
+
+describe approximations in practice using second-order approximations
 
 \subsection{Proximal Policy Optimization (PPO)}
-\cite{schulman_proximal_2017}
+\textbf{Proximal Policy Optimization} (PPO) is an improvement over TRPO that is simpler to implement and more efficient in practice~\cite{schulman_proximal_2017}. PPO uses a clipped surrogate objective function to approximate the expected improvement, which allows for a more stable optimization process. The clipped objective function is defined as
 
 \section{Actor-Critic Methods}
-In contrast to policy gradient methods, \textbf{actor-critic} methods learns the state-value function $V_\pi$ directly. We define a \textbf{critic} as a seperate entity from the the agent, which also may be a neural network.
 
 \subsection{Advantage Actor-Critic (A2C)}
-
-\subsection{Asynchronous Advantage Actor-Critic (A3C)}
-
-\section{Q-Learning}
 
 \section{Reward Shaping}
 Some environments have very sparse rewards, such as playing chess or go, where the agent only receives a definitive reward at the end of the game based on whether it wins or loses. This is a problem for learning, as the agent have trouble associating the actions it took during the game with the final reward. This is an example of the \textbf{credit assignment problem}, which is the fundamental reason why RL is so difficult.
@@ -1085,20 +1128,63 @@ put tikz figure here
 
 \subsection{Dataset Aggregation (DAgger)}
 
-\subsection{more methods look into them}
+\textbf{Dataset Aggregation (DAgger)} is a widely-used imitation learning method~\cite{ross_reduction_2011}.
+\begin{algorithm}
+    \caption{\textsc{DAgger} Algorithm, with expert policy $\pi^*$, $N$ iterations, and trajectory length $T$. Adapted from~\cite{ross_reduction_2011}.}\label{alg:dagger}
+    \begin{algorithmic}[1]
+        \State Initialize $\mathcal{D} \leftarrow \emptyset$.
+        \State Initialize arbitray $\hat{\pi}_0$.
+        \For{$i=1$ \textbf{to} $N$}
+        \State Let $\pi_i = \beta_i \pi^* + (1-\beta_i) \hat{\pi}_{i}$.
+        \State Sample $T$-step trajectories using $\pi_i$.
+        \State Get dataset $\mathcal{D}_i = \{ (s, \pi^*(s)) \}$ of visited states by $\pi_i$ and actions given by expert.
+        \State Aggregate datasets: $\mathcal{D} \leftarrow \mathcal{D} \bigcup \mathcal{D}_i$.
+        \State Train classifier $\hat{\pi}_{i+1}$ on $\mathcal{D}$.
+        \EndFor \\
+        \Return best $\hat{\pi}_i$ on validation.
+    \end{algorithmic}
+\end{algorithm}
 
-\subsection{Inverse Reinforcement Learning (IRL)}
-In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} is a form of imitation learning where the model learns a reward function (usually in the form of a neural network) from expert demonstrations, rather than the expert policy. The learned reward function can then be used to train a from-scratch agent using standard RL methods.
+The iteration dependent hyperparameter $\beta_i \in [0, 1]$ is a weighting factor that determines how much the expert policy $\pi^*$ contributes to each iteration of the policy $\hat{pi}$. In the original paper, Ross et al.\ suggest that $\beta_i$ should be set to $1$ for the first iteration, and then gradually decreased to $0$ as the iterations progress. This takes care of having to choose an initial policy, as the first iteration will be entirely based on the expert policy. In addition, this guarantees that the policy will not start too far from the expert policy, which may help with training convergence.
 
-put tikz figure here
+% \subsection{Inverse Reinforcement Learning (IRL)}
+% In contrast to behavior cloning, \textbf{inverse reinforcement learning (IRL)} is a form of imitation learning where the model learns a reward function (usually in the form of a neural network) from expert demonstrations, rather than the expert policy. The learned reward function can then be used to train a from-scratch agent using standard RL methods.
+
+% \cite{arora_survey_2021}
+
+% put tikz figure here
 
 \section{Cirriculum Learning}
-\cite{narvekar_curriculum_2020}
+\textbf{Cirriculum learning} encompasses a large variety of techniques that aim to improve the training of RL agents by introducing a structured learning process~\cite{narvekar_curriculum_2020}. It is common to see in literature that RL agents are trained in a series of stages, where each stage introduces a new task or environment that is progressively more difficult than the previous one. For example, an agent driving an autonomous car may start in an environment with no obstacles. Then, as training progresses, more difficult elements are intrdouce such as static and dynamic obstacles, road textures, and other vehicles.
 
-\cite{arora_survey_2021}
+Effective policy training may also involve an exploration phase, where the agent is allowed to explore the environment without any specific, or very loose, incetives. Similar to reward shaping via curiosity, exploratory cirriciulums allow the agent to familiarize itself with more states and actions, which can help it learn a better policy.
 
 \chapter{Applications of RL in Robotics Literature}
 Now that we have built up a solid foundation for the basics of reinforcement learning, we will now review examples of applications of RL in the field of robotics. This section is by no means extensive or comprehensive, it is only meant to serve as a tasting menu of the state of the art in the field. To acomplish this, we will approach a class of robots as a case study. We will then examine methods that have been used in the literature for that platform, and how they relate to the concepts we have discussed previously in this article.
+
+\section{Robotics Concepts}
+We will briefly discuss some fundamental robotics conceptts that are necessary to understand parts of this chapter. Since this article mainly focuses on machine learning rather than engineering, this section will just be a very high-level summary. In addition, these processes are well understood and are often black-boxed in literature.
+
+\subsection{Kinematic Chains}
+\textbf{Kinematic chains} are a series of rigid bodies (links) connected by joints that allow relative motion and rotation between them. They are ubiqutious in robotics as any robtic manipulator or appendage can be represented as a kinematic chain. Each joint may be controlled by an actuator, such as a motor. The tip of the kinematic chain is often called the \textbf{end-effector}.
+
+\subsection{Inverse and Forward Kinematics}
+\textbf{Inverse kinematics (IK)} is the process of computing the joint angles of a robot given a desired end-effector position and orientation. Solving IK is fundamental to controlling robotic manipulators and may be done analytically or numerically depending on the complexity of the kinematic chain.
+
+The converse of IK is \textbf{forward kinematics (FK)}, which is the process of computing the end-effector position and orientation given the joint angles. FK is usually much easier to compute than IK, as it simply a series of translations and rotations, which can be easily calculated using matrix multiplication.
+
+\subsection{PID Controllers}
+Robotic actuators apply torques to joints to move them into a desired postion. To do this, a controller is used to compute the desired torque to apply to the actuator based on the current joint position and velocity. Such controllers are usually \textbf{proportional-integral-derivative (PID)} controllers.
+
+The \textbf{process variable} of the controller is the relevant variable to manipulate, in this case the joint position. The \textbf{setpoint} is the desired value of the process variable and the difference between the process variable and the setpoint is called the \textbf{error} $e(t)$.
+
+We seek to minimize the error by applying a control signal $u(t)$, in this case a torque torque to the actuator, which is computed as a linear combination of the error, its integral, and its derivative,
+\begin{equation}
+    u(t) = K_p e(t) + K_i \int_0^t e(\tau)\ d\tau + K_d \frac{de}{dt}.
+\end{equation}
+The constants $K_p$, $K_i$, and $K_d$ are coefficients that determine the relative contribution of each term to the control signal. These parameters must be tuned for each specific application to optimize the performance of the controller. An underdamped controller may overshoot and undershoot the setpoint many times, leading to oscillations around the setpoint, while an overdamped controller may respond too slowly to the setpoint.
+
+put figure here
 
 \section{ANYmal: Quadrupedal Legged Robot}\label{sec:anymal}
 Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016, hutter_legged_2022}.
@@ -1133,7 +1219,7 @@ The ANYmal is a highly articulated robot with four legs, each with three joints 
 
 At a high level, robotic locomotion may be controlled by commanding the robot to move at a specific velocity in a specific direction, such as through inputs with a joystick or a keyboard. It is then the job of the software to translate these commands into torques to apply to the actuators of the robot.
 
-Traditional methods for locomotion of legged robots are often computationally expensive and require a lot of manual tuning to work well in practice. In addition, they are often not robust to changes in the environment. For example, robots that have different payloads may have markedly different mass distributions and physical dynamics, and thus require additional tuning to work well. In contrast, reinforcement learning (RL) methods are more flexible and allows us to black-box the control of the robot with a policy network.
+Traditional methods for locomotion of legged robots are often computationally expensive and require a lot of manual tuning to work well in practice. In addition, they are often not robust to changes in the environment. For example, robots that have different payloads may have markedly different mass distributions and physical dynamics, and thus require additional tuning to work well. In contrast, reinforcement learning methods are more flexible and allows us to black-box the control of the robot with a policy network.
 
 % make table to compare
 \begin{table}[H]
@@ -1165,24 +1251,22 @@ We examine a model-free RL approach first published in Hwangbo et al. (2019)~\ci
 
 Figure~\ref{fig:anymal-RL} shows an overview of the training process. Because of the infeasibility of training a a policy on a physical robot, the authors trained the policy in a simulated environment, and then transferred the policy to the real robot.
 
-The policy network outputs the desired joint positions of the robot, which are passed to a controller that computes the actuator torques to apply to the robot. Each observation to the policy network consisted of relevant joint state information, its history, the previous action of the policy, and the command passed to the robot. The controller that takes the joint positions and computes the actuator torques is commonly a proptional-derivative (PD) controller or proportional-integral-derivative (PID) controller.
+The policy network outputs the desired joint positions of the robot, which are passed to a PI/PID controller that computes the actuator torques to apply to the robot. Each observation to the policy network consisted of relevant joint state information, its history, the previous action of the policy, and the command passed to the robot.
 
-LOOK INTO THIS??? inverse kinematics???
+Since realistic actuator dynamics and feedback are very difficult to model accurately in simulation, the authors used supervised learning to train a standard feedforward neural network to estimate what a real controller would output given the same state information. The torques are then passed to the rigid body simulation to provided realistic dynamics for the policy to learn from. The architecture of the training process is shown in Figure~\ref{fig:anymal-detailed}.
 
-Since realistic actuators are very difficult to model accurately in simulation, the authors used supervised learning to train a standard feedforward neural network to learn the actuator torques from desired and actual joint positions and velocities that is usually passed to the controller \textit{in situ}. This actuator net essentially acts as the vrtual controller \textit{in silico}. The torques are then passed to the rigid body simulation to provided realistic dynamics for the policy to learn from. The architecture of the training process is shown in Figure~\ref{fig:anymal-detailed}.
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figs/anymal_detailed.png}
+    \includegraphics[width=0.8\linewidth]{figs/anymal_detailed.png}
     \caption{Reprinted from~\cite{hwangbo_learning_2019}.}
     \label{fig:anymal-detailed}
 \end{figure}
 
-In simulation, the authors also include models of the robot with different mass distributions to make the policy robust to such changes in intertial properties. Since trajectories were generated in simulation, the authors were able to considerably speed up training as they were not constrained to the temporal limitations of the material world. Using TRPO, the published policy was trained in less than 24 hours of real time, with a cirrciulum in place such that the costs imposed on the policy gradually increased as the policy improved. This allowed the policy to learn to walk in the first place, and then optimize its gait later in training. For comparison, previous non-RL methods may take weeks or months to tune.
+In simulation, the authors also include models of the robot with different mass distributions to make the policy robust to such changes in intertial properties. Since trajectories were generated in simulation, the authors were able to considerably speed up training as they were not constrained to the temporal limitations of the material world. Using TRPO, the published policy was trained in less than 24 hours of real time, with a cirriciulum in place such that the costs imposed on the policy gradually increased as the policy improved. This allowed the policy to learn to walk in the first place, and then optimize its gait later in training. For comparison, previous non-RL methods may take weeks or months to tune.
 
 \subsubsection{Lee et al. (2020)}
 The same group of authors published a successor paper in 2020~\cite{lee_learning_2020} that builds on the previous work, using a completely different architecture to improve the performance of the policy over highly diverse terrains. Using purley propioceptive internal state information, the policy was able to learn to walk on a variety of terrains with different textures, slopes, and coefficients of friction, as shown in Figure~\ref{anyml-terrain-gallery}, without any prior knowledge of the environment.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figs/figure1.pdf}
     \caption{Reprinted from~\cite{lee_learning_2020}.}
@@ -1190,7 +1274,7 @@ The same group of authors published a successor paper in 2020~\cite{lee_learning
 \end{figure}
 
 Instead of training a traditional feedforward neural network on state information, the authors instead use a temporal convolutional network (TCN) to process the state history, rather than just the most recent state. In addition, another policy is trained with privileged \textbf{ground-truth} information about the environment, such as the terrain type and external forces acting on the robot. This privileged policy is designated as the teacher policy, which is used to train the student policy via DAgger imitation learning. According to the authors, this approach was necessary to learn effective policies, as this locomotion task is markedly more difficult than the previous work, and outright learning a policy from scratch was not feasible. In simulation, diverse terrain was procedurallly generated to to populate the environment with terrain types that the robot may encounter in the real world. The novel architecture presented in Lee et al. (2020) is visualized in Figure~\ref{fig:terrain-architecture}.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figs/figure4.pdf}
     \caption{Reprinted from~\cite{lee_learning_2020}.}
@@ -1199,9 +1283,32 @@ Instead of training a traditional feedforward neural network on state informatio
 
 \cite{hutter_legged_2022}
 
-\section{Exoskeletons}
-\cite{luo_reinforcement_2021}
-\cite{luo_experiment-free_2024}
+\section{Assistive Robotics}
+
+Reinforcement learning also has applications in medical robotics and assistive devices, such as exoskeletons. The natural diversity of human physiology and physical ability poses a challenge for traditional control methods, as they require tedious testing and tuning. RL offers a solution to this problem with highly flexible policies that take into account the unique kinematics of each individual.
+
+Some non-simulation methods may directly incorporate human feedback into the training process, This is called \textbf{human-in-the-loop} (HITL) training. While this approach may achieve desirable results, it is not practical to apply on a larger scale, since it necessitates dedicated time and effort for each individual user. For patients with disabilities, which are often the target users of assistive devices, this process may be especially difficult. Thus, similar to our examples with legged robotic locomotion, work has been done to train policies in simulation, and then transfer the policies to the real world.
+
+A challenge in RL robotics is the ``sim2real gap''~\cite{luo_experiment-free_2024}, which is the difference in performance and behavior of a policy trained in simuation when deployed in the real world. In general, we seek to close this gap as much as possible, since RL is often only viable and economical to train in simulation. For robots designed to work in harmony with human biology, the sim2real gap is especially pronounced.
+
+\subsection{Exoskeleton}
+Exoskeltons are wearable robotic devices that assist the user in performing physical tasks. Exoskeletons work in conjunction with the user's own musculoskeletal system, and find applications in rehabilitation, mobility assistance, and even augmenting human strength. For eample, an exoskeleton may help a construction worker to lift heavy objects, or a patient with a spinal cord injury to walk.
+
+\subsubsection{Luo et al. (2021--2024)}
+we will examine a paper by Luo et al. (2021)~\cite{luo_reinforcement_2021} that demonstrates the feasbility of using RL to control a lower-limb exoskeleton. The desired performance metric of an exoskeleton is to reduce the energy expenditure of the user, whether it is the case of making tasks easier or augmenting the user's strength. As previously described, the authors use a simulated environment to train the policy, and then transfer the policy to the real robot. A virtual model of the human musculoskeletal system acts as an environment for the training. The policy is trained with a combination of PPO policy gradient and im The exoskeleton is shown on the left, and the human model is shown on the right. The policy is trained to assist the user in squatting motions. itation learning to learn a squatting motion. In addition, random external forces and torques are applied during training, along with variations in the dynamics of the exoskeleton and the human model, to make the policy robust to such changes in the real world and bridge the sim2real gap.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figs/exoskeleton.png}
+    \caption{Reprinted from~\cite{luo_experiment-free_2024}.}
+    \label{fig:luo2021}
+\end{figure}
+
+In 2024, the group built upon this work with a much more extensive control system that is able to assist dynamic motions such as walking, runnning, and stair climbing~\cite{luo_experiment-free_2024}. A publicly available dataset of human motion from the CMU Motion Capture Database~\cite{noauthor_cmu_nodate} is used to train a policy that learns assistance for a variety of behaviors. The novel architecture of the training process conssits of three fully connectd neural networks for simulating a human model and exoskeleton control.
+
+insert figure here
+
+Luo et.\ al (2024) achieves performance better than previous state-of-the-art methods, and is able to do so without any real-world training, or tuning to the specific user.
 
 
 \section{more examples will go here}
@@ -1213,18 +1320,31 @@ Instead of training a traditional feedforward neural network on state informatio
 \begin{proof}
     By definition (Equation~\ref{eq:expected-return}), the expected return $J_\pi$ is defined as
     \begin{equation*}
-        J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau.
+        J_\pi = \mathbb{E}_\pi[G(\tau)] = \int_{\tau} G(\tau)\mathbb{P}_{\pi}(\tau)\ d\tau.
     \end{equation*}
     Next, take the gradient with respect to the parameters $\boldsymbol{\theta}$ of the policy $\pi$ to both sides of the equation.
     \begin{align*}
-        \nabla_{\boldsymbol{\theta}} J_\pi &= \nabla_{\boldsymbol{\theta}} \int_{\tau} G(\tau)\mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \\
-        &= \int_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}} \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{by Leibniz integral rule} \\
-        &= \int_{\tau} G(\tau) \mathbb{P}_{\boldsymbol{\theta}}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\ d\tau \tag{$\partial \log f(x) = \frac{1}{f(x)}\partial f(x)$} \\
-        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\boldsymbol{\theta}}(\tau)\right] \tag{by the definition of expectation} \\
-        &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{T} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
-        \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\theta}}\left[G(\tau) \sum_{t=0}^{T} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
+        \nabla_{\boldsymbol{\theta}} J_\pi &= \nabla_{\boldsymbol{\theta}} \int_{\tau} G(\tau)\mathbb{P}_{\pi}(\tau)\ d\tau \\
+        &= \int_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}} \mathbb{P}_{\pi}(\tau)\ d\tau \tag{by Leibniz integral rule} \\
+        &= \int_{\tau} G(\tau) \mathbb{P}_{\pi}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\pi}(\tau)\ d\tau \tag{$\partial \log f(x) = \frac{1}{f(x)}\partial f(x)$} \\
+        &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\pi}(\tau)\right] \tag{by the definition of expectation} \\
+        &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{\infty} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
+        \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
     \end{align*}
 \end{proof}
+
+\section{Alternate Forms of the Policy Gradient Theorem}
+The policy gradient theorem stated in Equation~\ref{eq:policy-gradient-theorem} can be expressed in different forms, which may be more convenient for certain applications. For example, we can express the policy gradient theorem in terms of the state-value function $V_\pi(s)$ and the advantage function $A_\pi(s, a)$.
+\begin{align}
+    \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \\
+    &= \mathbb{E}_{\boldsymbol{\pi}}\left[\sum_{t=0}^{\infty} A_\pi(s_t, a_t) \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \tag{using $A_\pi(s, a) = G(\tau) - V_\pi(s)$} \\
+    &= \mathbb{E}_{\boldsymbol{\pi}}\left[\sum_{t=0}^{\infty} (Q_\pi(s_t, a_t) - V_\pi(s_t)) \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \tag{using $A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s)$}
+\end{align}
+
+
+
+\section{Derivation of Trust Region Policy Optimization (TRPO)}
+\label{sec:trpo-derivation}
 \end{appendices}
 
 

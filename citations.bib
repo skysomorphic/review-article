@@ -344,20 +344,6 @@
 	note = {\_eprint: 1605.02097},
 }
 
-@article{arora_survey_2021,
-	title = {A survey of inverse reinforcement learning: Challenges, methods and progress},
-	volume = {297},
-	issn = {0004-3702},
-	url = {https://www.sciencedirect.com/science/article/pii/S0004370221000515},
-	doi = {https://doi.org/10.1016/j.artint.2021.103500},
-	abstract = {Inverse reinforcement learning ({IRL}) is the problem of inferring the reward function of an agent, given its policy or observed behavior. Analogous to {RL}, {IRL} is perceived both as a problem and as a class of methods. By categorically surveying the extant literature in {IRL}, this article serves as a comprehensive reference for researchers and practitioners of machine learning as well as those new to it to understand the challenges of {IRL} and select the approaches best suited for the problem on hand. The survey formally introduces the {IRL} problem along with its central challenges such as the difficulty in performing accurate inference and its generalizability, its sensitivity to prior knowledge, and the disproportionate growth in solution complexity with problem size. The article surveys a vast collection of foundational methods grouped together by the commonality of their objectives, and elaborates how these methods mitigate the challenges. We further discuss extensions to the traditional {IRL} methods for handling imperfect perception, an incomplete model, learning multiple reward functions and nonlinear reward functions. The article concludes the survey with a discussion of some broad advances in the research area and currently open research questions.},
-	pages = {103500},
-	journaltitle = {Artificial Intelligence},
-	author = {Arora, Saurabh and Doshi, Prashant},
-	date = {2021},
-	keywords = {Generalization, Learning accuracy, Learning from demonstration, Reinforcement learning, Reward function, Survey},
-}
-
 @misc{silver_lectures_2015,
 	title = {Lectures on Reinforcement Learning},
 	url = {https://www.davidsilver.uk/teaching/},
@@ -388,6 +374,7 @@
 	author = {Schulman, John and Levine, Sergey and Abbeel, Pieter and Jordan, Michael and Moritz, Philipp},
 	editor = {Bach, Francis and Blei, David},
 	date = {2015-07-07},
+	file = {PDF:/home/sky/Zotero/storage/QK86ZJS6/Schulman et al. - 2015 - Trust Region Policy Optimization.pdf:application/pdf},
 }
 
 @article{apicella_survey_2021,
@@ -444,18 +431,103 @@
 	date = {2021},
 }
 
-@misc{narvekar_curriculum_2020,
-	title = {Curriculum Learning for Reinforcement Learning Domains: A Framework and Survey},
-	url = {https://arxiv.org/abs/2003.04960},
-	author = {Narvekar, Sanmit and Peng, Bei and Leonetti, Matteo and Sinapov, Jivko and Taylor, Matthew E. and Stone, Peter},
-	date = {2020},
-	note = {\_eprint: 2003.04960},
-}
-
 @misc{simonyan_very_2015,
 	title = {Very Deep Convolutional Networks for Large-Scale Image Recognition},
 	url = {https://arxiv.org/abs/1409.1556},
 	author = {Simonyan, Karen and Zisserman, Andrew},
 	date = {2015},
 	note = {\_eprint: 1409.1556},
+}
+
+@misc{noauthor_cmu_nodate,
+	title = {{CMU} Graphics Lab Motion Capture Database},
+	url = {https://mocap.cs.cmu.edu/},
+}
+
+@article{lecun_gradient-based_1998,
+	title = {Gradient-based learning applied to document recognition},
+	volume = {86},
+	doi = {10.1109/5.726791},
+	pages = {2278--2324},
+	number = {11},
+	journaltitle = {Proceedings of the {IEEE}},
+	author = {Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.},
+	date = {1998},
+	keywords = {Machine learning, Neural networks, Character recognition, Feature extraction, Hidden Markov models, Multi-layer neural network, Optical character recognition software, Optical computing, Pattern recognition, Principal component analysis},
+}
+
+@article{srivastava_dropout_2014,
+	title = {Dropout: a simple way to prevent neural networks from overfitting},
+	volume = {15},
+	issn = {1532-4435},
+	abstract = {Deep neural nets with a large number of parameters are very powerful machine learning systems. However, overfitting is a serious problem in such networks. Large networks are also slow to use, making it difficult to deal with overfitting by combining the predictions of many different large neural nets at test time. Dropout is a technique for addressing this problem. The key idea is to randomly drop units (along with their connections) from the neural network during training. This prevents units from co-adapting too much. During training, dropout samples from an exponential number of different "thinned" networks. At test time, it is easy to approximate the effect of averaging the predictions of all these thinned networks by simply using a single unthinned network that has smaller weights. This significantly reduces overfitting and gives major improvements over other regularization methods. We show that dropout improves the performance of neural networks on supervised learning tasks in vision, speech recognition, document classification and computational biology, obtaining state-of-the-art results on many benchmark data sets.},
+	pages = {1929--1958},
+	number = {1},
+	journaltitle = {J. Mach. Learn. Res.},
+	author = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and Sutskever, Ilya and Salakhutdinov, Ruslan},
+	date = {2014-01},
+	note = {Publisher: {JMLR}.org},
+	keywords = {deep learning, model combination, neural networks, regularization},
+}
+
+@inproceedings{kalra_why_2024,
+	title = {Why Warmup the Learning Rate? Underlying Mechanisms and Improvements},
+	volume = {37},
+	url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/ca98452d4e9ecbc18c40da2aa0da8b98-Paper-Conference.pdf},
+	pages = {111760--111801},
+	booktitle = {Advances in Neural Information Processing Systems},
+	publisher = {Curran Associates, Inc.},
+	author = {Kalra, Dayal Singh and Barkeshli, Maissam},
+	editor = {Globerson, A. and Mackey, L. and Belgrave, D. and Fan, A. and Paquet, U. and Tomczak, J. and Zhang, C.},
+	date = {2024},
+}
+
+@inproceedings{he_deep_2016,
+	title = {Deep Residual Learning for Image Recognition},
+	booktitle = {Proceedings of the {IEEE} Conference on Computer Vision and Pattern Recognition ({CVPR})},
+	author = {He, Kaiming and Zhang, Xiangyu and Ren, Shaoqing and Sun, Jian},
+	date = {2016-06},
+}
+
+@inproceedings{zhang_improved_2018,
+	title = {Improved Adam Optimizer for Deep Neural Networks},
+	doi = {10.1109/IWQoS.2018.8624183},
+	pages = {1--2},
+	booktitle = {2018 {IEEE}/{ACM} 26th International Symposium on Quality of Service ({IWQoS})},
+	author = {Zhang, Zijun},
+	date = {2018},
+	keywords = {Machine learning, Neural networks, Bridges, Conferences, Optimization, Task analysis, Training},
+}
+
+@inproceedings{dozat_incorporating_2016,
+	title = {Incorporating Nesterov Momentum into Adam},
+	eventtitle = {International Conference on Learning Representations ({ICLR}) 2016},
+	author = {Dozat, Timothy},
+	date = {2016-02-18},
+}
+
+@inproceedings{ross_reduction_2011,
+	location = {Fort Lauderdale, {FL}, {USA}},
+	title = {A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning},
+	volume = {15},
+	url = {https://proceedings.mlr.press/v15/ross11a.html},
+	series = {Proceedings of Machine Learning Research},
+	abstract = {Sequential prediction problems such as imitation learning, where future observations depend on previous predictions (actions), violate the common i.i.d. assumptions made in statistical learning. This leads to poor performance in theory and often in practice. Some recent approaches provide stronger guarantees in this setting, but remain somewhat unsatisfactory as they train either non-stationary or stochastic policies and require a large number of iterations. In this paper, we propose a new iterative algorithm, which trains a stationary deterministic policy, that can be seen as a no regret algorithm in an online learning setting. We show that any such no regret algorithm, combined with additional reduction assumptions, must find a policy with good performance under the distribution of observations it induces in such sequential settings. We demonstrate that this new approach outperforms previous approaches on two challenging imitation learning problems and a benchmark sequence labeling problem.},
+	pages = {627--635},
+	booktitle = {Proceedings of the Fourteenth International Conference on Artificial Intelligence and Statistics},
+	publisher = {{PMLR}},
+	author = {Ross, Stephane and Gordon, Geoffrey and Bagnell, Drew},
+	editor = {Gordon, Geoffrey and Dunson, David and Dudík, Miroslav},
+	date = {2011-04-11},
+}
+
+@article{narvekar_curriculum_2020,
+	title = {Curriculum Learning for Reinforcement Learning Domains: A Framework and Survey},
+	volume = {21},
+	url = {http://jmlr.org/papers/v21/20-212.html},
+	pages = {1--50},
+	number = {181},
+	journaltitle = {Journal of Machine Learning Research},
+	author = {Narvekar, Sanmit and Peng, Bei and Leonetti, Matteo and Sinapov, Jivko and Taylor, Matthew E. and Stone, Peter},
+	date = {2020},
 }
