@@ -76,7 +76,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{robot doggo can learn how to walk??? \\
-    \large{An introductory survey of reinforcement learning and its applications to robotic systems.}}
+    \large{An introductory survey of reinforcement learning and applications to robotic systems.}}
 \author{Sky Hong \\
     \textit{Choate Rosemary Hall}}
 \date{\today}
@@ -92,7 +92,7 @@
 
         \vspace{0.5cm}
         \large
-        An introductory survey of reinforcement learning and its applications to robotic systems.
+        An introductory survey of reinforcement learning and applications to robotic systems.
 
         \vfill
 
@@ -107,7 +107,7 @@
         \textbf{Abstract}
         \vspace{0.5cm}
     \end{center}
-    the best abstract youve ever read (real). Everyone knows Mario is cool as [EXPLETIVE DELETED]. But knows what he's thinking? Who knows why he crushes turtles? And why do we think about him as fondly as we think of the mythical (nonexistent?) Dr Pepper? Perchance I believe it was Kant who said ``Experience without theory is blind, but theory without experience is mere intellectual play.'' Mario exhibits experience by crushing turts all day, but he exhibits theory by stating ``Let's-a go!'' Keep it up, baby! When Mario leaves his place of safety to stomp a turty, he knows that he may Die. And yet, for a man who can purchase lives with money, a life becomes a mere store of value. A tax that can be paid for, much as a rich man feels any law with a fine is a price. We think of Mario as a hero, but he is simply a one percenter of a more privileged variety. The lifekind. Perchance.
+    Sorry.
 \end{titlepage}
 
 
@@ -494,8 +494,6 @@ Substituting these terms into the equations, we have
     \frac{\partial C}{\partial w_{ij}^{(L)}} = 2(a_j^{(L)} - y_j) \phi'(z_j^{(L)}) a_i^{(L-1)}.
 \end{equation}
 
-wow this is really complicated to explain with math will come back later
-
 \section{Overfitting}\label{sec:overfitting}
 \textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible. Sometimes, there may be a fundamental difference between the training data and the test data that prevents any progress from being made. In general, we call problems of this nature \textbf{mismatches}, \textbf{distribution shifts}, or \textbf{dataset shifts}.
 
@@ -742,8 +740,6 @@ In the case of deep learning, normalization can also be applied to the activatio
 
 \subsubsection{Batch Normalization}
 \textbf{Batch normalization} (BatchNorm) is a very common implementation of activation normalization, applied before the actiavation function of a layer. BatchNorm takes advantage of the parallel computafortion of features within a batch and interleaves standardization simultaneously with the forward pass of the network.
-
-insert figure here
 
 Since normalization with z-scores moves the mean to $0$, this introduces some model bias. Parameters $\boldsymbol{\beta}$ and $\boldsymbol{\gamma}$ are introduced to get rid of this bias. They are \textit{not} hyperparameters and can be learned by the network. It is possible that these parameters will reintroduce disparities in magnitude, but they are usually initialized with values of $\mathbf{1}$ and $\mathbf{0}$ and only change the scaling slowly.
 
@@ -999,7 +995,7 @@ Recall that the environment returns a reward according to $R$ each time the agen
 \end{equation}
 $G$ can be defined on a trajectory $\tau$ as
 \begin{equation}
-    G(\tau) = \sum_{t=0}^{T} \gamma^t r_t.
+    G(\tau) = G_0 = \sum_{t=0}^{T} \gamma^t r_t.
 \end{equation}
 
 The \textbf{expected return} $J_\pi$ of a policy $\pi$ is then formally defined as the expected value $G$ over all possible trajectories that the agent may take.
@@ -1026,10 +1022,6 @@ We can also define an \textbf{advantage function} $A_\pi(s, a)$, which is the di
     A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s).
 \end{equation}
 This function quantifies how much better or worse taking action $a$ in state $s$ is compared to the average action in that state, and it is relevant for many Rl algorithms.
-
-\subsubsection{Bellman Equation}
-
-\subsubsection{Learning Policies}
 
 \subsection{Continuous State and Action Spaces}
 Up to this point, our notation has been limited to discrete state and action spaces. It is important to take note that for many applications $\mathcal{S}$ and $\mathcal{A}$ may be continuous spaces, such as the position and velocity of a robot arm, or the torque to apply to a joint. It is rather easy in most cases to extend the concepts that we have discussed to the continuous case: replacing sums with integral, probabilities with probability density functions, and so on. So, we will not go into much detail here about the specific nuances between discrete and continuous domains, just keep in mind that there may be some abuses of notation here and there.
@@ -1086,16 +1078,8 @@ We can then optimize this expected improvement by maximizing it with respect to 
     \boldsymbol{\theta}^{(t+1)} = \arg\max_{\boldsymbol{\theta}} \mathcal{L}(\boldsymbol{\theta}^{(t)}, \boldsymbol{\theta}) \quad \text{s.t.} \quad D_{KL}\left(\pi_{\boldsymbol{\theta}}, \pi_{\boldsymbol{\theta}^{(t)}}\right) \leq \delta.
 \end{equation}
 
-\subsubsection{Implementation}
-
-describe approximations in practice using second-order approximations
-
 \subsection{Proximal Policy Optimization (PPO)}
 \textbf{Proximal Policy Optimization} (PPO) is an improvement over TRPO that is simpler to implement and more efficient in practice~\cite{schulman_proximal_2017}. PPO uses a clipped surrogate objective function to approximate the expected improvement, which allows for a more stable optimization process. The clipped objective function is defined as
-
-\section{Actor-Critic Methods}
-
-\subsection{Advantage Actor-Critic (A2C)}
 
 \section{Reward Shaping}
 Some environments have very sparse rewards, such as playing chess or go, where the agent only receives a definitive reward at the end of the game based on whether it wins or loses. This is a problem for learning, as the agent have trouble associating the actions it took during the game with the final reward. This is an example of the \textbf{credit assignment problem}, which is the fundamental reason why RL is so difficult.
@@ -1306,13 +1290,7 @@ we will examine a paper by Luo et al. (2021)~\cite{luo_reinforcement_2021} that 
 
 In 2024, the group built upon this work with a much more extensive control system that is able to assist dynamic motions such as walking, runnning, and stair climbing~\cite{luo_experiment-free_2024}. A publicly available dataset of human motion from the CMU Motion Capture Database~\cite{noauthor_cmu_nodate} is used to train a policy that learns assistance for a variety of behaviors. The novel architecture of the training process conssits of three fully connectd neural networks for simulating a human model and exoskeleton control.
 
-insert figure here
-
 Luo et.\ al (2024) achieves performance better than previous state-of-the-art methods, and is able to do so without any real-world training, or tuning to the specific user.
-
-
-\section{more examples will go here}
-
 
 \begin{appendices}
 \chapter{Proofs}
@@ -1327,18 +1305,18 @@ Luo et.\ al (2024) achieves performance better than previous state-of-the-art me
         \nabla_{\boldsymbol{\theta}} J_\pi &= \nabla_{\boldsymbol{\theta}} \int_{\tau} G(\tau)\mathbb{P}_{\pi}(\tau)\ d\tau \\
         &= \int_{\tau} G(\tau) \nabla_{\boldsymbol{\theta}} \mathbb{P}_{\pi}(\tau)\ d\tau \tag{by Leibniz integral rule} \\
         &= \int_{\tau} G(\tau) \mathbb{P}_{\pi}(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\pi}(\tau)\ d\tau \tag{$\partial \log f(x) = \frac{1}{f(x)}\partial f(x)$} \\
-        &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\pi}(\tau)\right] \tag{by the definition of expectation} \\
-        &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{\infty} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
-        \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
+        &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \mathbb{P}_{\pi}(\tau)\right] \tag{by the definition of expectation} \\
+        &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[G(\tau) \nabla_{\boldsymbol{\theta}} \log \left(\prod_{t=0}^{\infty} \pi_{\boldsymbol{\theta}}(a_t | s_t)\right)\right] \tag{deconstructing probability of $\tau$} \\
+        \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right]
     \end{align*}
 \end{proof}
 
 \section{Alternate Forms of the Policy Gradient Theorem}
 The policy gradient theorem stated in Equation~\ref{eq:policy-gradient-theorem} can be expressed in different forms, which may be more convenient for certain applications. For example, we can express the policy gradient theorem in terms of the state-value function $V_\pi(s)$ and the advantage function $A_\pi(s, a)$.
 \begin{align}
-    \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \\
-    &= \mathbb{E}_{\boldsymbol{\pi}}\left[\sum_{t=0}^{\infty} A_\pi(s_t, a_t) \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \tag{using $A_\pi(s, a) = G(\tau) - V_\pi(s)$} \\
-    &= \mathbb{E}_{\boldsymbol{\pi}}\left[\sum_{t=0}^{\infty} (Q_\pi(s_t, a_t) - V_\pi(s_t)) \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \tag{using $A_\pi(s, a) = Q_\pi(s, a) - V_\pi(s)$}
+    \nabla_{\boldsymbol{\theta}} J_\pi &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[G(\tau) \sum_{t=0}^{\infty} \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \\
+    &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[\sum_{t=0}^{\infty} \gamma^t r_t \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \\
+    &= \mathbb{E}_{\tau\sim\boldsymbol{\pi}}\left[\sum_{t=0}^{T-1} \gamma^t r_t \nabla_{\boldsymbol{\theta}} \log \pi_{\boldsymbol{\theta}}(a_t | s_t)\right] \\
 \end{align}
 
 
