@@ -495,7 +495,7 @@ Substituting these terms into the equations, we have
 \end{equation}
 
 \section{Overfitting}\label{sec:overfitting}
-\textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible. Sometimes, there may be a fundamental difference between the training data and the test data that prevents any progress from being made. In general, we call problems of this nature \textbf{mismatches}, \textbf{distribution shifts}, or \textbf{dataset shifts}.
+\textbf{Overfitting} is a phenomenon that occurs when a model learns the training data too well, and is unable to generalize to new data. Generally, models with more parameters and degrees of freedom are more prone to overfitting. This may be mitigated by simply using a smaller model or by stopping training earlier, but these methods are not always feasible. Sometimes, there may be a fundamental difference between the training data and the test data that prevents any progress from being made. In general, we call problems of this nature \textbf{mismatches}, \textbf{distribution shifts}, \textbf{dataset shifts}, or \textbf{domain shifts}.
 
 Models are usually tested on a seperate data set as a metric of how accurete their predictions are. An indicator of overfitting is when the model performs well on the training data, but poorly on the test data.
 
@@ -914,6 +914,18 @@ It is important to note that CNNs have extensive applications in non-image data 
 
 maybe talk about dilation layers?
 
+\subsection{Temporal Convolutional Networks (TCNs)}
+
+\section{Recurrent Neural Networks (RNNs)}
+
+\subsection{Long Short-Term Memory (LSTM) Networks}
+
+\section{Miscellaneous Concepts}
+\subsection{End to End Neural Networks}
+Neural networks often work in conjunction with other algorithms and systems, such as control systems or perception alogirthms to generate features. \textbf{End to end} networks skip the modeling of these systems and instead directly take in raw data and output the desired result. End to end networks typically require enormous amounts of data to train, but they are able to learn the entire process from scratch. In addition, blackboxing the entire process may make it more difficult to interpret the model and identify failures.
+
+
+
 \chapter{Reinforcement Learning (RL)} % make all of this chapter more mathmatically rigorous
 So far, we have only discussed ML techniques that are \textbf{supervised}, where the model is trained on a dataset with labels directing the model on what the desired output should be. The task of labeling is often done manually by a human, which is often infeasible or impractical for many applications. Sometimes, even humans may not even know what the best answer is.
 
@@ -1170,6 +1182,8 @@ The constants $K_p$, $K_i$, and $K_d$ are coefficients that determine the relati
 
 put figure here
 
+\subsection{Model Predictive Control (MPC)}
+
 \section{ANYmal: Quadrupedal Legged Robot}\label{sec:anymal}
 Originally developed for the DARPA Robotics Challenge, the ANYmal is a quadrupedal legged robot developed by ANYbotics. It is a highly capable platform that has been used in a variety of applications, including search and rescue, inspection, and exploration~\cite{hutter_anymal_2016, hutter_legged_2022}.
 \begin{figure}[h]
@@ -1275,11 +1289,13 @@ Some non-simulation methods may directly incorporate human feedback into the tra
 
 A challenge in RL robotics is the ``sim2real gap''~\cite{luo_experiment-free_2024}, which is the difference in performance and behavior of a policy trained in simuation when deployed in the real world. In general, we seek to close this gap as much as possible, since RL is often only viable and economical to train in simulation. For robots designed to work in harmony with human biology, the sim2real gap is especially pronounced.
 
-\subsection{Exoskeleton}
+\subsection{Domain Randomization}
+
+\subsection{Exoskeletons}
 Exoskeltons are wearable robotic devices that assist the user in performing physical tasks. Exoskeletons work in conjunction with the user's own musculoskeletal system, and find applications in rehabilitation, mobility assistance, and even augmenting human strength. For eample, an exoskeleton may help a construction worker to lift heavy objects, or a patient with a spinal cord injury to walk.
 
 \subsubsection{Luo et al. (2021--2024)}
-we will examine a paper by Luo et al. (2021)~\cite{luo_reinforcement_2021} that demonstrates the feasbility of using RL to control a lower-limb exoskeleton. The desired performance metric of an exoskeleton is to reduce the energy expenditure of the user, whether it is the case of making tasks easier or augmenting the user's strength. As previously described, the authors use a simulated environment to train the policy, and then transfer the policy to the real robot. A virtual model of the human musculoskeletal system acts as an environment for the training. The policy is trained with a combination of PPO policy gradient and im The exoskeleton is shown on the left, and the human model is shown on the right. The policy is trained to assist the user in squatting motions. itation learning to learn a squatting motion. In addition, random external forces and torques are applied during training, along with variations in the dynamics of the exoskeleton and the human model, to make the policy robust to such changes in the real world and bridge the sim2real gap.
+we will examine a paper by Luo et al. (2021)~\cite{luo_reinforcement_2021} that demonstrates the feasbility of using RL to control a lower-limb exoskeleton. The desired performance metric of an exoskeleton is to reduce the energy expenditure of the user, whether it is the case of making tasks easier or augmenting the user's strength. As previously described, the authors use a simulated environment to train the policy, and then transfer the policy to the real robot. A virtual model of the human musculoskeletal system acts as an environment for the training. The policy is trained with a combination of PPO policy gradient and im The exoskeleton is shown on the left, and the human model is shown on the right. The policy is trained to assist the user in squatting motions. Imitation learning to learn a squatting motion. In addition, random external forces and torques are applied during training, along with variations in the dynamics of the exoskeleton and the human model, to make the policy robust to such changes in the real world and bridge the sim2real gap.
 
 \begin{figure}[H]
     \centering
@@ -1291,6 +1307,14 @@ we will examine a paper by Luo et al. (2021)~\cite{luo_reinforcement_2021} that 
 In 2024, the group built upon this work with a much more extensive control system that is able to assist dynamic motions such as walking, runnning, and stair climbing~\cite{luo_experiment-free_2024}. A publicly available dataset of human motion from the CMU Motion Capture Database~\cite{noauthor_cmu_nodate} is used to train a policy that learns assistance for a variety of behaviors. The novel architecture of the training process conssits of three fully connectd neural networks for simulating a human model and exoskeleton control.
 
 Luo et.\ al (2024) achieves performance better than previous state-of-the-art methods, and is able to do so without any real-world training, or tuning to the specific user.
+
+% summer
+
+\subsection{Prosthetics}
+
+\subsubsection{Wen et  al. (2019)}
+
+RL has also been demonstrated in applications with prosthetics. Wen et al. (2019) uses RL to tune parameters for a transfemoral prosthetic with a knee joint. In contrast to Luo et al. (2021), Wen et al.\ use a human in the loop approach, with physical training sessions.
 
 \begin{appendices}
 \chapter{Proofs}
